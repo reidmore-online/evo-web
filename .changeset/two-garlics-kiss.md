@@ -1,7 +1,7 @@
 ---
 "@ebay/ebayui-core": patch
 "@ebay/ui-core-react": patch
-"@evo-web/marko": patch
+"@ebay/skin": patch
 ---
 
 fix(icon): removed fill from clock-12
