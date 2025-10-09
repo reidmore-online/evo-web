@@ -22,6 +22,7 @@ export type EbayFakeMenuButtonProps = {
     expanded?: boolean;
     fixWidth?: boolean;
     reverse?: boolean;
+    strategy?: "absolute" | "fixed";
     variant?: EbayFakeMenuButtonVariant;
     className?: string;
     icon?: ReactElement;
@@ -44,6 +45,7 @@ const EbayMenuButton: FC<Props> = ({
     fixWidth,
     reverse,
     variant,
+    strategy,
     expanded: defaultExpanded = false,
     className,
     icon: _icon,
@@ -64,7 +66,7 @@ const EbayMenuButton: FC<Props> = ({
 
     const { overlayStyles, refs } = useFloatingDropdown({
         open: expanded,
-        options: { reverse },
+        options: { reverse, strategy },
     });
 
     const buttonRef = refs.host as React.MutableRefObject<HTMLButtonElement>;
