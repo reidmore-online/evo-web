@@ -121,22 +121,21 @@ function options(children) {
         optGroups = optionGroups(childrenOpts);
         let currentGroupName;
         childrenOpts.forEach((option, idx) => {
-            const { value, className: optionClassName, children: optionChildren, optgroup } = option.props;
+            const { children: optionChildren, optgroup, ...optionProps } = option.props;
             withinGroup = optgroup && renderedGroups.indexOf(optgroup) === -1;
 
             if (withinGroup) {
                 // This will always be true when the very first group is encountered.
                 currentGroupName = optgroup;
                 const currentGroupOptions = optGroups[currentGroupName];
-                const opts = currentGroupOptions.map((groupOption) => (
-                    <EbaySelectOption
-                        key={`opt-${groupOption.value}`}
-                        value={groupOption.value}
-                        className={groupOption.className}
-                    >
-                        {groupOption.children}
-                    </EbaySelectOption>
-                ));
+                const opts = currentGroupOptions.map((groupOption) => {
+                    const { children: groupOptionChildren, optgroup: _, ...groupOptionProps } = groupOption;
+                    return (
+                        <EbaySelectOption key={`opt-${groupOption.value}`} {...groupOptionProps}>
+                            {groupOptionChildren}
+                        </EbaySelectOption>
+                    );
+                });
                 allOptions.push(
                     <optgroup key={idx} label={optgroup}>
                         {opts}
@@ -149,7 +148,7 @@ function options(children) {
                  * been added to the renderedGroups array. In that case it will be skipped.
                  */
                 allOptions.push(
-                    <EbaySelectOption key={idx} value={value} className={optionClassName}>
+                    <EbaySelectOption key={idx} {...optionProps}>
                         {optionChildren}
                     </EbaySelectOption>,
                 );
