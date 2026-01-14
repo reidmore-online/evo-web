@@ -22,6 +22,7 @@
         "Andrew Gliga <agliga4@gmail.com>",
         "Arthur Khachatryan <arthurk55@gmail.com>"
     ],
+    "type": "module",
     "main": "./index.js",
     "module": "./index.mjs",
     "files": [

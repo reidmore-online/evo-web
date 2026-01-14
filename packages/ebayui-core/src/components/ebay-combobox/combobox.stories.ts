@@ -11,6 +11,7 @@ import SearchFilteringTemplateCode from "./examples/search-filtering.marko?raw";
 import ActionableButtonTemplate from "./examples/actionable-button.marko";
 import ActionableButtonTemplateCode from "./examples/actionable-button.marko?raw";
 import { Story } from "@storybook/marko";
+import { expect, within, userEvent, waitFor } from "@storybook/test";
 
 const Template: Story<Input> = (args: Input) => ({
     input: addRenderBodies(args),
@@ -202,6 +203,56 @@ FloatingLabel.parameters = {
     },
 };
 
+FloatingLabel.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
+    const canvas = within(canvasElement);
+    const combobox = canvas.getByRole("combobox");
+
+    await step("Verify floating label initial state", async () => {
+        const floatingLabelContainer = canvasElement.querySelector(".floating-label");
+        await expect(floatingLabelContainer).toBeInTheDocument();
+        
+        const label = canvas.getByText("Default Label");
+        await expect(label).toHaveClass("floating-label__label--inline");
+    });
+
+    await step("Test floating label moves on focus", async () => {
+        await userEvent.click(combobox);
+        
+        await waitFor(() => {
+            const label = canvas.getByText("Default Label");
+            expect(label).not.toHaveClass("floating-label__label--inline");
+        });
+    });
+
+    await step("Test combobox functionality with floating label", async () => {
+        const options = canvas.getAllByRole("option");
+        await userEvent.click(options[0]);
+        
+        await expect(combobox).toHaveValue("August Campaign");
+        await expect(document.activeElement).toBe(combobox);
+    });
+
+    await step("Test label stays elevated with value", async () => {
+        await userEvent.click(document.body);
+        
+        await waitFor(() => {
+            const label = canvas.getByText("Default Label");
+            expect(label).not.toHaveClass("floating-label__label--inline");
+        });
+    });
+
+    await step("Test label returns to inline when cleared", async () => {
+        await userEvent.click(combobox);
+        await userEvent.clear(combobox);
+        await userEvent.click(document.body);
+        
+        await waitFor(() => {
+            const label = canvas.getByText("Default Label");
+            expect(label).toHaveClass("floating-label__label--inline");
+        });
+    });
+};
+
 export const Isolated = Template.bind({});
 Isolated.args = {
     name: "example1text",
@@ -228,6 +279,188 @@ Isolated.parameters = {
             category: "disabled",
         },
     },
+};
+
+Isolated.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
+    const canvas = within(canvasElement);
+    const combobox = canvas.getByRole("combobox");
+
+    await step("Verify initial collapsed state", async () => {
+        await expect(combobox).toHaveAttribute("aria-expanded", "false");
+        await expect(combobox).toHaveValue("");
+    });
+
+    await step("Test focus expands listbox", async () => {
+        await userEvent.click(combobox);
+        await expect(combobox).toHaveAttribute("aria-expanded", "true");
+        
+        const options = canvas.getAllByRole("option");
+        await expect(options.length).toBe(6);
+    });
+
+    await step("Test keyboard navigation with arrow keys", async () => {
+        await userEvent.keyboard("{ArrowDown}");
+        
+        const options = canvas.getAllByRole("option");
+        await expect(options[0]).toHaveClass("combobox__option--active");
+        
+        // In automatic mode, should fill input with highlighted option
+        await expect(combobox).toHaveValue("August Campaign");
+        
+        await userEvent.keyboard("{ArrowDown}");
+        await expect(options[1]).toHaveClass("combobox__option--active");
+        await expect(combobox).toHaveValue("4th of July Sale (paused)");
+        
+        await userEvent.keyboard("{ArrowUp}");
+        await expect(options[0]).toHaveClass("combobox__option--active");
+    });
+
+    await step("Test Enter key selects option", async () => {
+        await userEvent.keyboard("{Enter}");
+        await expect(combobox).toHaveValue("August Campaign");
+    });
+
+    await step("Test clicking option selects it", async () => {
+        await userEvent.click(combobox);
+        await waitFor(() => expect(combobox).toHaveAttribute("aria-expanded", "true"));
+        
+        const options = canvas.getAllByRole("option");
+        await userEvent.click(options[2]);
+        
+        await expect(combobox).toHaveValue("Basic Offer");
+        await expect(document.activeElement).toBe(combobox);
+    });
+
+    await step("Test Escape key collapses listbox", async () => {
+        await userEvent.click(combobox);
+        await expect(combobox).toHaveAttribute("aria-expanded", "true");
+        
+        await userEvent.keyboard("{Escape}");
+        await expect(combobox).toHaveAttribute("aria-expanded", "false");
+    });
+
+    await step("Test typing filters options", async () => {
+        await userEvent.clear(combobox);
+        await userEvent.click(combobox);
+        
+        await userEvent.type(combobox, "Basic");
+        
+        await waitFor(async () => {
+            const filteredOptions = canvas.queryAllByRole("option");
+            await expect(filteredOptions.length).toBeLessThanOrEqual(4);
+        });
+    });
+};
+
+export const ManualSelection = Template.bind({});
+ManualSelection.args = {
+    name: "manualtext",
+    autocomplete: "list",
+    listSelection: "manual",
+    option: [
+        { text: "August Campaign", value: "1" },
+        { text: "4th of July Sale (paused)", value: "2" },
+        { text: "Basic Offer", value: "3" },
+        { text: "Basic Offer 2", value: "4" },
+    ],
+} as any;
+ManualSelection.parameters = {
+    docs: {
+        source: {
+            code: tagToString("ebay-combobox", ManualSelection.args, {
+                options: "option",
+            }),
+        },
+    },
+};
+
+ManualSelection.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
+    const canvas = within(canvasElement);
+    const combobox = canvas.getByRole("combobox");
+
+    await step("Verify manual selection mode behavior", async () => {
+        await userEvent.click(combobox);
+        await expect(combobox).toHaveAttribute("aria-expanded", "true");
+    });
+
+    await step("Test arrow keys don't auto-fill in manual mode", async () => {
+        await userEvent.keyboard("{ArrowDown}");
+        
+        const options = canvas.getAllByRole("option");
+        await expect(options[0]).toHaveClass("combobox__option--active");
+        
+        // In manual mode, input should NOT be filled automatically
+        await expect(combobox).toHaveValue("");
+        
+        await userEvent.keyboard("{ArrowDown}");
+        await expect(options[1]).toHaveClass("combobox__option--active");
+        await expect(combobox).toHaveValue("");
+    });
+
+    await step("Test Enter key fills input in manual mode", async () => {
+        await userEvent.keyboard("{Enter}");
+        await expect(combobox).toHaveValue("4th of July Sale (paused)");
+    });
+
+    await step("Test clicking option works in manual mode", async () => {
+        await userEvent.click(combobox);
+        await waitFor(() => expect(combobox).toHaveAttribute("aria-expanded", "true"));
+        
+        const options = canvas.getAllByRole("option");
+        await userEvent.click(options[2]);
+        
+        await expect(combobox).toHaveValue("Basic Offer");
+    });
+};
+
+export const Disabled = Template.bind({});
+Disabled.args = {
+    name: "disabledtext",
+    disabled: true,
+    autocomplete: "list",
+    option: [
+        { text: "August Campaign", value: "1" },
+        { text: "4th of July Sale (paused)", value: "2" },
+        { text: "Basic Offer", value: "3" },
+    ],
+} as any;
+Disabled.parameters = {
+    docs: {
+        source: {
+            code: tagToString("ebay-combobox", Disabled.args, {
+                options: "option",
+            }),
+        },
+    },
+};
+
+Disabled.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
+    const canvas = within(canvasElement);
+    const combobox = canvas.getByRole("combobox");
+
+    await step("Verify disabled state", async () => {
+        await expect(combobox).toBeDisabled();
+        await expect(combobox).toHaveAttribute("aria-expanded", "false");
+    });
+
+    await step("Test disabled combobox doesn't expand on focus", async () => {
+        await userEvent.click(combobox);
+        await expect(combobox).toHaveAttribute("aria-expanded", "false");
+    });
+
+    await step("Test disabled combobox doesn't respond to keyboard", async () => {
+        await userEvent.keyboard("{ArrowDown}");
+        
+        const options = canvas.queryAllByRole("option");
+        await expect(options.length).toBe(0);
+    });
+
+    await step("Test disabled combobox doesn't allow typing", async () => {
+        const initialValue = (combobox as HTMLInputElement).value;
+        await userEvent.type(combobox, "test");
+        
+        await expect(combobox).toHaveValue(initialValue);
+    });
 };
 
 export const SearchFiltering = buildExtensionTemplate(
