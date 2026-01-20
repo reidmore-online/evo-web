@@ -10,7 +10,9 @@ All components in the library are documented, when writing a test for a componen
 - Component overview page: https://opensource.ebay.com/evo-web/components/{component}
 - Component accessibility page: https://opensource.ebay.com/evo-web/components/{component}/accessibility
 - Component CSS page: https://opensource.ebay.com/evo-web/components/{component}/css
-- Component tests: `src/components/{component}/tests/test.*.js`
+- Component tests: 
+    - Location for ebayui-core: `src/components/{component}/tests/test.*.js`
+    - Location for ebayui-core-react: `src/{component}/__tests__/*.spec.tsx`
 
 ## Project Structure
 
