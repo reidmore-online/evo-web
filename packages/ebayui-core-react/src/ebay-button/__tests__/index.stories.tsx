@@ -1,6 +1,7 @@
 import React from "react";
 import { StoryFn, Meta } from "@storybook/react-vite";
 import { action } from "storybook/actions";
+import { expect, within, userEvent } from "@storybook/test";
 import { EbayButton, EbayButtonCell } from "../index";
 import { EbayIconMenu20 } from "../../ebay-icon/icons/ebay-icon-menu-20";
 import { EbayIconSettings16 } from "../../ebay-icon/icons/ebay-icon-settings-16";
@@ -32,6 +33,57 @@ export const Default: StoryFn<typeof EbayButton> = () => (
         </p>
     </>
 );
+
+Default.play = async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step("Check initial button rendering", async () => {
+        const button = canvas.getByText("Hello, I am a button!");
+        await expect(button).toBeInTheDocument();
+        await expect(button).not.toBeDisabled();
+    });
+
+    await step("Test button click interaction", async () => {
+        const button = canvas.getByText("Hello, I am a button!");
+        await userEvent.click(button);
+        await expect(button).toBeInTheDocument();
+    });
+
+    await step("Test keyboard interaction - Space key", async () => {
+        const button = canvas.getByText("Hello, I am a button!");
+        button.focus();
+        await userEvent.keyboard(" ");
+        await expect(button).toHaveFocus();
+    });
+
+    await step("Test keyboard interaction - Enter key", async () => {
+        const button = canvas.getByText("Hello, I am a button!");
+        button.focus();
+        await userEvent.keyboard("{Enter}");
+        await expect(button).toHaveFocus();
+    });
+
+    await step("Test focus management with Tab key", async () => {
+        const button = canvas.getByText("Hello, I am a button!");
+        await userEvent.click(button);
+        await expect(button).toHaveFocus();
+
+        await userEvent.keyboard("{Tab}");
+        await expect(button).not.toHaveFocus();
+    });
+
+    await step("Verify link button rendering", async () => {
+        const link = canvas.getByRole("link");
+        await expect(link).toBeInTheDocument();
+        await expect(link).toHaveAttribute("href", "https://ebay.com");
+    });
+
+    await step("Test link is keyboard focusable", async () => {
+        const link = canvas.getByRole("link");
+        link.focus();
+        await expect(link).toHaveFocus();
+    });
+};
 
 export const Size: StoryFn<typeof EbayButton> = () => (
     <>
@@ -206,6 +258,35 @@ export const IconOnly: StoryFn<typeof EbayButton> = () => (
     </>
 );
 
+IconOnly.play = async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step("Verify icon-only buttons have accessible labels", async () => {
+        const menuButton = canvas.getByLabelText("Menu button");
+        const deleteButton = canvas.getByLabelText("Destructive button");
+        await expect(menuButton).toBeInTheDocument();
+        await expect(deleteButton).toBeInTheDocument();
+    });
+
+    await step("Test icon-only button is keyboard accessible", async () => {
+        const menuButton = canvas.getByLabelText("Menu button");
+        menuButton.focus();
+        await expect(menuButton).toHaveFocus();
+    });
+
+    await step("Test icon-only button click interaction", async () => {
+        const menuButton = canvas.getByLabelText("Menu button");
+        await userEvent.click(menuButton);
+        await expect(menuButton).toBeInTheDocument();
+    });
+
+    await step("Verify icon-only link has accessible label", async () => {
+        const settingsLink = canvas.getByLabelText("Settings link");
+        await expect(settingsLink).toBeInTheDocument();
+        await expect(settingsLink).toHaveAttribute("href", "#");
+    });
+};
+
 export const Transparent: StoryFn<typeof EbayButton> = () => (
     <div style={{ background: "rgba(66, 214, 205, 0.5)" }}>
         <p>
@@ -245,11 +326,69 @@ export const Disabled: StoryFn<typeof EbayButton> = () => (
     </>
 );
 
+Disabled.play = async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step("Verify disabled button state", async () => {
+        const primaryButton = canvas.getByText("Primary Button");
+        const secondaryButton = canvas.getByText("Secondary Button");
+        await expect(primaryButton).toBeDisabled();
+        await expect(secondaryButton).toBeDisabled();
+    });
+
+    await step("Test that click does not work when disabled", async () => {
+        const button = canvas.getByText("Primary Button");
+        await userEvent.click(button);
+        await expect(button).toBeDisabled();
+    });
+
+    await step("Test keyboard interaction does not work when disabled", async () => {
+        const button = canvas.getByText("Secondary Button");
+        button.focus();
+        await userEvent.keyboard(" ");
+        await expect(button).not.toHaveFocus();
+    });
+
+    await step("Verify disabled link does not have href", async () => {
+        const link = canvas.getByRole("link");
+        await expect(link).not.toHaveAttribute("href");
+    });
+};
+
 export const PartiallyDisabledButton: StoryFn<typeof EbayButton> = () => (
     <EbayButton priority="primary" partiallyDisabled>
         Hello, I am a button!
     </EbayButton>
 );
+
+PartiallyDisabledButton.play = async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step("Verify partially disabled state", async () => {
+        const button = canvas.getByRole("button");
+        await expect(button).not.toBeDisabled();
+        await expect(button).toHaveAttribute("aria-disabled", "true");
+    });
+
+    await step("Test that button is still focusable", async () => {
+        const button = canvas.getByRole("button");
+        button.focus();
+        await expect(button).toHaveFocus();
+    });
+
+    await step("Test click interaction on partially disabled button", async () => {
+        const button = canvas.getByRole("button");
+        await userEvent.click(button);
+        await expect(button).toHaveAttribute("aria-disabled", "true");
+    });
+
+    await step("Test keyboard interaction on partially disabled button", async () => {
+        const button = canvas.getByRole("button");
+        button.focus();
+        await userEvent.keyboard(" ");
+        await expect(button).toHaveFocus();
+    });
+};
 
 export const Truncated: StoryFn<typeof EbayButton> = () => (
     <div>
@@ -302,6 +441,31 @@ export const LoadingButton: StoryFn<typeof EbayButton> = () => (
         </p>
     </>
 );
+
+LoadingButton.play = async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step("Verify loading state with aria-live attribute", async () => {
+        const buttons = canvas.getAllByRole("button");
+        buttons.forEach((button) => {
+            expect(button).toHaveAttribute("aria-live", "polite");
+        });
+    });
+
+    await step("Verify progress spinner is present", async () => {
+        const buttons = canvas.getAllByRole("button");
+        const firstButton = buttons[0];
+        const spinner = firstButton.querySelector(".progress-spinner");
+        await expect(spinner).toBeInTheDocument();
+    });
+
+    await step("Test button is still interactive in loading state", async () => {
+        const buttons = canvas.getAllByRole("button");
+        const firstButton = buttons[0];
+        firstButton.focus();
+        await expect(firstButton).toHaveFocus();
+    });
+};
 
 export const ExpandButton: StoryFn<typeof EbayButton> = () => (
     <>
