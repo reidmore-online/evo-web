@@ -9,7 +9,8 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git@github.com:eBay/evo-web"
+        "url": "git+ssh://git@github.com/eBay/evo-web.git",
+        "directory": "packages/ebayui-core-react"
     },
     "license": "ISC",
     "author": "tmanyanov@ebay.com",
@@ -86,6 +87,6 @@
     },
     "publishConfig": {
         "directory": "dist",
-        "registry": "https://registry.npmjs.org"
+        "access": "public"
     }
 }

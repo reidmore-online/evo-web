@@ -8,7 +8,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ebay/evo-core"
+    "url": "git+https://github.com/ebay/evo-core.git",
+    "directory": "packages/evo-marko"
   },
   "license": "MIT",
   "files": [
@@ -63,6 +64,6 @@
     "marko": "5 - 6"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org"
+    "access": "public"
   }
 }

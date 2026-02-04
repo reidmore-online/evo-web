@@ -14,7 +14,8 @@
     "homepage": "https://opensource.ebay.com/skin/",
     "repository": {
         "type": "git",
-        "url": "https://github.com/ebay/evo-core"
+        "url": "git+https://github.com/ebay/evo-core",
+        "directory": "packages/skin"
     },
     "license": "MIT",
     "maintainers": [
@@ -78,6 +79,6 @@
         "extends @ebay/browserslist-config"
     ],
     "publishConfig": {
-        "registry": "https://registry.npmjs.org"
+        "access": "public"
     }
 }

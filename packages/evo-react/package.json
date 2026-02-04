@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/eBay/evo-web",
+    "url": "git+https://github.com/eBay/evo-web.git",
     "directory": "packages/evo-react"
   },
   "license": "MIT",
@@ -64,7 +64,6 @@
     "react-dom": "^19"
   },
   "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org"
+    "access": "public"
   }
 }
