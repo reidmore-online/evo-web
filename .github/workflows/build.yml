@@ -1,0 +1,46 @@
+name: eBay UI CI
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches: ["main", "[1-9][0-9].*"]
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}"
+  cancel-in-progress: true
+
+permissions:
+  actions: write
+  checks: write
+  contents: write
+  deployments: write
+  discussions: write
+  issues: write
+  packages: write
+  id-token: write
+  pull-requests: write
+  repository-projects: write
+  security-events: write
+  statuses: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm i
+      - run: npm run build:ci
+      - uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Check for uncommitted changes
+        run: |
+          if output=$(git status --porcelain) && [ -z "$output" ]; then
+            echo "Working directory is clean. No uncommitted changes."
+          else
+            echo "Working directory has uncommitted changes or untracked files. Please run the build and check these files in as part of your PR:"
+            echo "$output"
+            exit 1 # Fail the CI run if there are uncommitted changes
+          fi
