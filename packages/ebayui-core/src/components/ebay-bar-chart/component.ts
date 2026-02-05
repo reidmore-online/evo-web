@@ -23,7 +23,7 @@ import type { WithNormalizedProps } from "../../global";
 
 interface SeriesItem
     extends
-        Highcharts.PlotBarOptions,
+        Highcharts.PlotBarDataSortingOptions,
         Omit<Highcharts.SeriesBarOptions, "dataLabels" | "pointRange"> {
     top?: boolean;
     bottom?: boolean;

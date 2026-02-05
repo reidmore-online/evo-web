@@ -23,7 +23,7 @@ declare const Highcharts: typeof HighchartsTypes;
 interface AreaChartInput extends Omit<Marko.HTML.Div, `on${string}`> {
     title?: Highcharts.TitleOptions["text"];
     description?: Highcharts.SeriesAccessibilityOptionsObject["description"];
-    series: Highcharts.SeriesAreaOptions | Highcharts.SeriesAreaOptions[];
+    series: Highcharts.SeriesAreasplineOptions | Highcharts.SeriesAreasplineOptions[];
     tooltipValueFormatter?: (value: string | number) => string;
     tooltipTitleFormatter?: (
         value: string | number,

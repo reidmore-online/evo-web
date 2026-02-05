@@ -82,7 +82,7 @@ export const Standard = Template.bind({});
 Standard.args = {
     title: "Single series sample area chart",
     description: "this chart displays 30 days of sample values",
-    series: sampleSeriesData.slice(0, 1) as Highcharts.SeriesAreaOptions[],
+    series: sampleSeriesData.slice(0, 1) as Highcharts.SeriesAreasplineOptions[],
 };
 Standard.parameters = {
     docs: {
@@ -97,7 +97,7 @@ TwoSeries.args = {
     title: "Two series sample area chart",
     description:
         "this chart displays 30 days of values for sample1 and sample2",
-    series: sampleSeriesData.slice(0, 2) as Highcharts.SeriesAreaOptions[],
+    series: sampleSeriesData.slice(0, 2) as Highcharts.SeriesAreasplineOptions[],
 };
 TwoSeries.parameters = {
     docs: {
@@ -112,7 +112,7 @@ ThreeSeries.args = {
     title: "Three series sample area chart",
     description:
         "this chart displays 30 days of values for sample1, sample2 and sample3",
-    series: sampleSeriesData.slice(0, 3) as Highcharts.SeriesAreaOptions[],
+    series: sampleSeriesData.slice(0, 3) as Highcharts.SeriesAreasplineOptions[],
 };
 ThreeSeries.parameters = {
     docs: {
@@ -127,7 +127,7 @@ FourSeries.args = {
     title: "Four series sample area chart",
     description:
         "this chart displays 30 days of values for sample1, sample2, sample3, and sample4",
-    series: sampleSeriesData.slice(0, 4) as Highcharts.SeriesAreaOptions[],
+    series: sampleSeriesData.slice(0, 4) as Highcharts.SeriesAreasplineOptions[],
 };
 FourSeries.parameters = {
     docs: {
@@ -142,7 +142,7 @@ FiveSeries.args = {
     title: "Five series sample area chart",
     description:
         "this chart displays 30 days of values for sample1, sample2, sample3, sample4, and sample5",
-    series: sampleSeriesData as Highcharts.SeriesAreaOptions[],
+    series: sampleSeriesData as Highcharts.SeriesAreasplineOptions[],
 };
 FiveSeries.parameters = {
     docs: {
@@ -157,7 +157,7 @@ WithUnitlessYFormat.args = {
     title: "Custom y-axis label and tooltip value format",
     description:
         "this chart displays 30 days of values for sample1, sample2, sample3, sample4, and sample5",
-    series: seriesDataWithoutLabels as Highcharts.SeriesAreaOptions[],
+    series: seriesDataWithoutLabels as Highcharts.SeriesAreasplineOptions[],
     yLabelFormatter: (value: any) => `${value}`,
     tooltipValueFormatter: (value: any) => `${value}`,
 };
@@ -174,7 +174,7 @@ WithXLabelFormat.args = {
     title: "Custom x-axis label format",
     description:
         "this chart displays 30 days of values for sample1, sample2, sample3, sample4, and sample5",
-    series: sampleSeriesData as Highcharts.SeriesAreaOptions[],
+    series: sampleSeriesData as Highcharts.SeriesAreasplineOptions[],
     xLabelFormatter: (value: any, dateFormat: any) => {
         if (typeof value !== "number") {
             return value;
@@ -202,7 +202,7 @@ NonSpline.args = {
     title: "Area chart with non-spline type",
     description:
         "this chart displays 30 days of values for sample1, sample2, sample3, sample4, and sample5",
-    series: sampleSeriesData.slice(0, 1) as Highcharts.SeriesAreaOptions[],
+    series: sampleSeriesData.slice(0, 1) as Highcharts.SeriesAreasplineOptions[],
     areaType: "area",
 };
 
@@ -219,7 +219,7 @@ CustomHighchartOptions.args = {
     title: "Custom highchart options",
     description:
         "this chart displays 30 days of values for sample1, sample2, sample3, sample4, and sample5",
-    series: sampleSeriesData.slice(0, 1) as Highcharts.SeriesAreaOptions[],
+    series: sampleSeriesData.slice(0, 1) as Highcharts.SeriesAreasplineOptions[],
     highchartOptions: {
         yAxis: {
             ceiling: 45000,
