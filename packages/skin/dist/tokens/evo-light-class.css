@@ -56,16 +56,19 @@
     --color-foreground-secondary: var(--color-neutral-600);
     --color-foreground-success: var(--color-kiwi-600);
     --color-gradient-ai-blue-strong: linear-gradient(
+        to right,
         var(--color-ai-solid-purple-strong),
         var(--color-ai-solid-blue-strong) 50%,
         var(--color-ai-solid-green-strong) 100%
     );
     --color-gradient-ai-blue-subtle: linear-gradient(
+        to right,
         var(--color-ai-solid-purple-subtle),
         var(--color-ai-solid-blue-subtle) 50%,
         var(--color-ai-solid-green-subtle) 100%
     );
     --color-gradient-ai-full-color-diagonal: linear-gradient(
+        135deg,
         var(--color-ai-solid-green-strong) 10%,
         var(--color-ai-solid-blue-strong) 27%,
         var(--color-ai-solid-purple-strong) 42%,
@@ -73,26 +76,32 @@
         var(--color-ai-solid-yellow-strong) 78%
     );
     --color-gradient-ai-green-strong: linear-gradient(
+        to right,
         var(--color-ai-solid-blue-strong),
         var(--color-ai-solid-green-strong) 100%
     );
     --color-gradient-ai-green-subtle: linear-gradient(
+        to right,
         var(--color-ai-solid-blue-subtle),
         var(--color-ai-solid-green-subtle) 100%
     );
     --color-gradient-ai-purple-strong: linear-gradient(
+        to right,
         var(--color-ai-solid-red-strong),
         var(--color-ai-solid-purple-strong) 100%
     );
     --color-gradient-ai-purple-subtle: linear-gradient(
+        to right,
         var(--color-ai-solid-red-subtle),
         var(--color-ai-solid-purple-subtle) 100%
     );
     --color-gradient-image-scrim: linear-gradient(
+        90deg,
         rgba(248, 248, 248, 0) 52%,
         rgba(248, 248, 248, 0.03)
     );
     --color-gradient-loading-shimmer-on-secondary: linear-gradient(
+        90deg,
         rgba(237, 237, 237, 0),
         rgba(237, 237, 237, 0.6) 25%,
         rgba(237, 237, 237, 0.85) 37%,
@@ -103,6 +112,7 @@
         rgba(237, 237, 237, 0)
     );
     --color-gradient-loading-shimmer: linear-gradient(
+        90deg,
         rgba(248, 248, 248, 0),
         rgba(248, 248, 248, 0.6) 25%,
         rgba(248, 248, 248, 0.85) 37%,

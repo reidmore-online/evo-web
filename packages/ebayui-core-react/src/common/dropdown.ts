@@ -1,7 +1,7 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { autoUpdate, flip, offset, shift, useFloating } from "@floating-ui/react";
 import Expander from "makeup-expander";
-import { createLinear } from "makeup-active-descendant";
+import { ActiveDescendantOptions, createLinear, LinearActiveDescendant } from "makeup-active-descendant";
 
 export type FloatingDropdownHookReturn = {
     overlayStyles: ReturnType<typeof useFloating>["floatingStyles"];
@@ -79,7 +79,7 @@ export function useExpander<T extends HTMLElement>(
     { ref, expanded, options, onExpand, onCollapse }: ExpanderHookArgs<T>,
     deps?: React.DependencyList,
 ): ExpanderHookReturn {
-    const expander = useRef<typeof Expander>(null);
+    const expander = useRef<Expander>(null);
     const isExpanded = useSyncExternalStore(
         (listener) => {
             function handleExpand() {
@@ -135,15 +135,6 @@ export function useExpander<T extends HTMLElement>(
     };
 }
 
-type AutoIndexType =
-    | "none"
-    | "current"
-    | "interactive"
-    | "ariaChecked"
-    | "ariaSelected"
-    | "ariaSelectedOrInteractive"
-    | number;
-
 export type ActiveDescendantChangeHandler = (event: ActiveDescendantChangeEvent, data: { toIndex: number }) => void;
 
 export type ActiveDescendantHookArgs = {
@@ -152,15 +143,7 @@ export type ActiveDescendantHookArgs = {
     itemContainerRef?: React.MutableRefObject<HTMLElement>;
     disabled?: boolean;
     onChange?: ActiveDescendantChangeHandler;
-    options: {
-        activeDescendantClassName: string;
-        autoInit?: AutoIndexType;
-        autoReset?: AutoIndexType;
-        autoScroll?: boolean;
-        axis?: "both" | "x" | "y";
-        ignoreByDelegateSelector?: string;
-        wrap?: boolean;
-    };
+    options: ActiveDescendantOptions;
 };
 
 export type ActiveDescendantHookReturn = {
@@ -182,7 +165,7 @@ export function useActiveDescendant({
     disabled,
     options,
 }: ActiveDescendantHookArgs): ActiveDescendantHookReturn {
-    const activeDescendantRef = useRef<typeof createLinear>(null);
+    const activeDescendantRef = useRef<LinearActiveDescendant>(null);
 
     useEffect(() => {
         const handleChange = (event: ActiveDescendantChangeEvent) => {
