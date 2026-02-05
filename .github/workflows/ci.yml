@@ -70,7 +70,6 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
   release:
-    # Sets permissions of the GITHUB_TOKEN to allow opening release PR
     needs: [build]
     permissions:
       id-token: write
@@ -101,3 +100,4 @@ jobs:
           # Disable husky
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ''
