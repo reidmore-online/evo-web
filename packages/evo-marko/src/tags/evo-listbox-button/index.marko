@@ -56,6 +56,8 @@ export interface Input<Index extends number | string | undefined>
     a11yIconPrefixText,
     a11ySelectedText = "selected",
     "aria-describedby": describedby,
+    onKeyDown,
+    onFocusOut,
     ...htmlInput
 }=input>
 <let/selected:=input.selected>
@@ -72,14 +74,13 @@ export interface Input<Index extends number | string | undefined>
 <const/isForm=variant === "form">
 
 <id/rootId> // TODO: remove in favor of $root once Marko supports dynamic tag return
+<const/$root() { return document.getElementById(rootId)! }>
 
 <evo-expander/expander
-    open:=open
+    open=open
     strategy=strategy
-    collapseOnSelect=collapseOnSelect
-    host=() => (document.getElementById(rootId)!)
+    host=$root
     overlay=$listbox/>
-
 
 <${truncate && !fluid ? "div" : "span"}
     ...htmlInput
@@ -90,7 +91,19 @@ export interface Input<Index extends number | string | undefined>
         fluid && "listbox-button--fluid",
         isForm && `listbox-button--form`,
         hasError && "listbox-button--error",
-    ]>
+    ]
+    onKeyDown(e: KeyboardEvent, el: HTMLDivElement) {
+        if (open && e.key === "Escape") {
+            open = false;
+        }
+        onKeyDown && onKeyDown(e, el);
+    }
+    onFocusOut(e: FocusEvent, el: HTMLDivElement) {
+        if (!el.contains(e.relatedTarget as Node)) {
+            open = false;
+        }
+        onFocusOut && onFocusOut(e, el);
+    }>
     <button
         class=[
             "listbox-button__control",
@@ -109,9 +122,7 @@ export interface Input<Index extends number | string | undefined>
         aria-labelledby=labelId && `${prefixId} ${labelId}`
         aria-invalid=invalid && "true"
         aria-expanded=expander.ariaExpanded
-        onClick() {
-            expander.onClick();
-        }>
+        onClick() { open = !open; }>
         <span class="btn__cell">
             <if=floatingLabel>
                 <span class=[
@@ -150,9 +161,6 @@ export interface Input<Index extends number | string | undefined>
     </button>
     <evo-listbox/$listbox:(() => HTMLElement)
         style=expander.floatingStyles
-        onFocusOut() {
-            expander.onFocusOut();
-        }
         class=[
             "listbox-button__listbox",
             strategy === "fixed" && "listbox-button__listbox--fixed",
@@ -161,5 +169,8 @@ export interface Input<Index extends number | string | undefined>
         name=name
         listSelection=listSelection
         a11ySelectedText=a11ySelectedText
+        onClick() {
+            if (collapseOnSelect) open = false;
+        }
         option=input.option/>
 </>

@@ -51,6 +51,7 @@ export interface Input<
     split: inputSplit,
     collapseOnSelect,
     transparent: inputTransparent,
+    onKeyDown,
     ...htmlInput
 }=input>
 
@@ -67,7 +68,6 @@ export interface Input<
 }=(() => {
     let priority = null;
     let split;
-    let status;
     let noToggleIcon;
     let transparent;
     let tagName;
@@ -90,7 +90,6 @@ export interface Input<
 
     return {
         tagName,
-        status,
         split,
         isSelected,
         noToggleIcon,
@@ -98,14 +97,21 @@ export interface Input<
         priority,
     };
 })()>
+
 <evo-expander/expander
-    open:=open
-    reverse=reverse
+    open=open
+    placement=(reverse ? "bottom-end" : "bottom-start")
     strategy=strategy
-    collapseOnSelect=collapseOnSelect
-    host=root
+    host=$root
     overlay=$menu/>
-<span/root ...htmlInput class=["menu-button", inputClass]>
+
+<span/$root
+    ...htmlInput
+    class=["menu-button", inputClass]
+    onKeyDown(e, el) {
+        if (open && e.key === "Escape") open = false;
+        onKeyDown && onKeyDown(e, el);
+    }>
     <${tagName}
         class=[`menu-button__button`]
         size=size
@@ -120,10 +126,7 @@ export interface Input<
         split=split
         disabled=disabled
         partiallyDisabled=partiallyDisabled
-        onClick(e, target) {
-            expander.onClick();
-            (input.onClick || null)?.(e, target);
-        }>
+        onClick() { open = !open; }>
         <if=label>
             <span ...label class=["menu-button-prefix-label", label.class]/>
             ${" "}
@@ -144,5 +147,8 @@ export interface Input<
         fixWidth=fixWidth
         tabindex=-1
         footerButton=footerButton
+        onClick() {
+            if (collapseOnSelect) open = false;
+        }
         item=items/>
 </span>
