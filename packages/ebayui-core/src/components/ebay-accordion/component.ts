@@ -23,14 +23,14 @@ class Accordion extends Marko.Component<Input, State> {
     onCreate() {
         this.state = {
             index: -1,
-            interacted: false
-        }
+            interacted: false,
+        };
     }
 
     onInput(input: Input) {
         this.state = {
             index: -1,
-            interacted: this.state.interacted
+            interacted: this.state.interacted,
         };
     }
 

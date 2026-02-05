@@ -81,8 +81,10 @@ export const chartFontFamily = '"Market Sans", Arial, sans-serif',
                 (series[i] as Highcharts.SeriesBarOptions).borderColor = color;
                 (series[i] as Highcharts.SeriesBarOptions).color = color;
             } else {
-                (series[i] as Highcharts.SeriesAreasplineOptions).lineColor = color;
-                (series[i] as Highcharts.SeriesAreasplineOptions).fillOpacity = 1;
+                (series[i] as Highcharts.SeriesAreasplineOptions).lineColor =
+                    color;
+                (series[i] as Highcharts.SeriesAreasplineOptions).fillOpacity =
+                    1;
             }
         }
     },
@@ -116,7 +118,9 @@ export const chartFontFamily = '"Market Sans", Arial, sans-serif',
 
         return colors.map((color: any) => color.lineColor);
     },
-    setSeriesMarkerStyles = function (series: Highcharts.SeriesAreasplineOptions[]) {
+    setSeriesMarkerStyles = function (
+        series: Highcharts.SeriesAreasplineOptions[],
+    ) {
         series.forEach((s, i) => {
             s.zIndex = series.length - i;
             s.marker = {

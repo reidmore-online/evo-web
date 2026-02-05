@@ -29,7 +29,7 @@
         "build:storybook": "storybook build -o ./_site",
         "coverage": "vitest run --browser.headless --coverage",
         "deploy": "storybook build -o ./_site",
-        "importSVG": "node --experimental-json-modules --experimental-import-meta-resolve scripts/import-svg && prettier \"{./src/components/ebay-{icon,flag,star-rating,image-placeholder}/**/*,**/*.{js,ts,json,MD}}\" --write --log-level=warn",
+        "importSVG": "node scripts/import-svg && prettier \"{./src/components/ebay-{icon,flag,star-rating,image-placeholder}/**/*,**/*.{js,ts,json,MD}}\" --write --log-level=warn",
         "lint": "npm run lint:less && npm run lint:js && npm run lint:whitespace",
         "lint:js": "eslint",
         "lint:less": "stylelint \"src/**/*.{css,less}\" --config .stylelintrc",

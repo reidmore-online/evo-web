@@ -15,7 +15,7 @@ import {
     getCountryCallingCode,
 } from "libphonenumber-js/max";
 import examples from "libphonenumber-js/mobile/examples";
-import markoTagJson from "../src/components/ebay-icon/marko-tag.json" assert { type: "json" };
+import markoTagJson from "../src/components/ebay-icon/marko-tag.json" with { type: "json" };
 // const tempIgnore = ["RS", "PE", "SV", "BO", "DO", "EA"];
 const tempIgnore = [];
 
