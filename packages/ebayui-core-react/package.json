@@ -9,7 +9,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+ssh://git@github.com/eBay/evo-web.git",
+        "url": "git+https://github.com/eBay/evo-web.git",
         "directory": "packages/ebayui-core-react"
     },
     "license": "ISC",

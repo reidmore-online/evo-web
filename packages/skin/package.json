@@ -14,7 +14,7 @@
     "homepage": "https://opensource.ebay.com/skin/",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/ebay/evo-core.git",
+        "url": "git+https://github.com/eBay/evo-web.git",
         "directory": "packages/skin"
     },
     "license": "MIT",
