@@ -78,8 +78,5 @@
     "peerDependencies": {
         "@ebay/skin": "^19",
         "marko": "^5.31.12"
-    },
-    "publishConfig": {
-        "access": "public"
     }
 }

@@ -77,8 +77,5 @@
     },
     "browserslist": [
         "extends @ebay/browserslist-config"
-    ],
-    "publishConfig": {
-        "access": "public"
-    }
+    ]
 }
