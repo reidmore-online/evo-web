@@ -1,7 +1,7 @@
 import { Story } from "@storybook/marko";
 import Readme from "./README.md";
-import fixed from "./examples/all.marko";
-import code from "./examples/all.marko?raw";
+import fixed from "./examples/default.marko";
+import code from "./examples/default.marko?raw";
 import component, { type Input } from "./index.marko";
 
 export default {
@@ -19,6 +19,10 @@ export default {
         a11yText: {
             description: "The aria label for the outer container.",
         },
+        flag: {
+            description: "The 2 letter country code of what flag to display",
+            type: "string"
+        }
     },
 };
 export const Default: Story<Input> = (args: Input) => ({

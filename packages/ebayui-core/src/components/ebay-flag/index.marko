@@ -1,4 +1,5 @@
 import type { WithNormalizedProps } from "../../global";
+import { processHtmlAttributes } from "../../common/html-attributes";
 static {
     interface FlagInput extends Omit<Marko.HTML.Span, `on${string}`> {
         flag?: string;
@@ -7,4 +8,6 @@ static {
 export interface Input extends WithNormalizedProps<FlagInput> {}
 $ const { flag } = input;
 
-<span class=["fflag", `fflag--${flag?.toLowerCase()}`]/>
+<span
+    ...processHtmlAttributes(input, ["flag", "class"])
+    class=["fflag", `fflag--${flag?.toLowerCase()}`, input.class]/>
