@@ -1,47 +1,52 @@
-# Project Description
+# Testing
 
 ## Instructions
+
 You are a QA tester writing comprehensive tests for the evo-web ebayui-core and ebayui-core-react component libraries. There are multiple packages within the project, each with their own set of components.
 
-These tests will use testing-library, Storybook Interactions, and axe-core. The accessibility standard for testing is WCAG 2.2 levels A and AA. All components have the prefix `ebay-` in the file system, but do not use this prefix when looking up the component in URLs, for example, ebay-button documentation is found at https://opensource.ebay.com/evo-web/components/button. 
+These tests will use testing-library, Storybook Interactions, and axe-core. The accessibility standard for testing is WCAG 2.2 levels A and AA. All components have the prefix `ebay-` in the file system, but do not use this prefix when looking up the component in URLs, for example, ebay-button documentation is found at https://opensource.ebay.com/evo-web/components/button.
 
 ## Documentation
-All components in the library are documented, when writing a test for a component, review the following resources to determine what tests to create: 
+
+All components in the library are documented, when writing a test for a component, review the following resources to determine what tests to create:
+
 - Component overview page: https://opensource.ebay.com/evo-web/components/{component}
 - Component accessibility page: https://opensource.ebay.com/evo-web/components/{component}/accessibility
 - Component CSS page: https://opensource.ebay.com/evo-web/components/{component}/css
-- Component tests: 
-    - Location for ebayui-core: `src/components/{component}/tests/test.*.js`
-    - Location for ebayui-core-react: `src/{component}/__tests__/*.spec.tsx`
+- Component tests:
+  - Location for ebayui-core: `src/components/{component}/test/test.*.js`
+  - Location for ebayui-core-react: `src/{component}/__tests__/*.spec.tsx`
 
 ## Project Structure
 
 /packages
-    /ebayui-core
-        /src
-            /components
-                /ebay-{component}
-                    /tests
-        /test-results
-    /ebayui-core-react
-        /src
-            /ebay-{component}
-                /__tests__
-        
+/ebayui-core
+/src
+/components
+/ebay-{component}
+/tests
+/test-results
+/ebayui-core-react
+/src
+/ebay-{component}
+/**tests**
 
 ## Tests
+
 Each component should have the following types of tests if the component supports that type of interaction, and should be grouped in these types:
+
 - Click Interactions
 - Keyboard Interactions
 - Focus Management
 - ARIA Attributes
 - Accessibility Compliance
 
-Tests should include the disabled state of a component if one is present. 
+Tests should include the disabled state of a component if one is present.
 
 Two types of tests should be created for each component: unit and end to end tests. Unit tests should be created for simple interaction tests, end to end tests should be created for more complex interactions. A simple interaction test is one that tests a single action, such as a click or keyboard button press. A complex interaction test would require multiple steps or interactions to be tested.
 
 An example of a simple interaction test would be:
+
 ```
             describe("when Space key is pressed", () => {
                 beforeEach(async () => {
@@ -57,18 +62,19 @@ An example of a simple interaction test would be:
                 it("then it emits change event", () => {
                     const changeEvents = component.emitted("change");
                     expect(changeEvents).has.length(1);
-                    
+
                     const [[changeEvent]] = changeEvents;
                     expect(changeEvent).has.property("checked", true);
                 });
             });
 ```
 
-An example of a complex interaction test would be: 
+An example of a complex interaction test would be:
+
 ```
 describe("given disabled checkbox is initially checked", () => {
             beforeEach(async () => {
-                component = await render(Disabled, { 
+                component = await render(Disabled, {
                     checked: true,
                 });
             });
@@ -94,8 +100,19 @@ describe("given disabled checkbox is initially checked", () => {
 
 New unit test files will be created in the `/src/components/{component}/tests/` folder with the name `accessibility.browser.js`. Do not duplicate any of the existing unit tests in the other `test.*.js` files.
 
-New end to end test files will be created as part of the component storybook file (`/src/components/{component}/{component}.stories.ts`) using the `play` function documented here: https://storybook.js.org/docs/writing-tests/interaction-testing 
+New end to end test files will be created as part of the component storybook file (`/src/components/{component}/{component}.stories.ts`) using the `play` function documented here: https://storybook.js.org/docs/writing-tests/interaction-testing
 
-## File and locator naming 
-The `ebayui` project has some naming quirks, so the base component page may not be `default`, check the `/src/components/{component}.stories.ts` file for each component when creating the test to determine the best name for each locator. 
+### Creating tests
 
+1. Review component documentation first (overview, accessibility, CSS pages)
+2. Check existing tests to avoid duplication
+3. For Marko: Create `accessibility.browser.js` in `src/components/{component}/test/`
+4. For Marko: Add Storybook interaction tests in `{component}.stories.ts` using `play` function
+5. For React: Add tests in `src/{component}/__tests__/*.spec.tsx`
+6. Organize tests by interaction type (Click, Keyboard, Focus, ARIA, Accessibility)
+7. Test both enabled and disabled states
+8. Use `beforeEach` blocks for nested test setup (given/when/then pattern)
+
+## File and locator naming
+
+The `ebayui` project has some naming quirks, so the base component page may not be `default`, check the `/src/components/{component}.stories.ts` file for each component when creating the test to determine the best name for each locator.

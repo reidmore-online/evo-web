@@ -1,6 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# Project Context
 
 ## Overview
 
@@ -11,6 +9,28 @@ evo-web is a monorepo containing eBay's design system with three main packages:
 - **@ebay/ui-core-react** - React component library (60+ components)
 
 All packages share a common design philosophy: progressive enhancement and WCAG 2.2 AA accessibility compliance.
+
+### Testing Philosophy
+
+Tests are organized by interaction type and follow WCAG 2.2 accessibility standards:
+
+- **Click Interactions** - Mouse/touch interactions
+- **Keyboard Interactions** - Keyboard navigation (Arrow keys, Enter, Space, Escape, Tab, etc.)
+- **Focus Management** - Focus trapping, roving tabindex, active descendant
+- **ARIA Attributes** - Proper roles, states, and properties
+- **Accessibility Compliance** - WCAG 2.2 Level A and AA using axe-core
+
+#### Marko Component Tests
+
+- Browser tests: `test.browser.js` - Use `@marko/testing-library` with Vitest browser mode (Playwright)
+- Server tests: `test.server.js` - Test SSR output
+- Accessibility tests: `accessibility.browser.js` - Dedicated accessibility test suites
+- Storybook interaction tests: In `{component}.stories.ts` using `play` function
+
+#### React Component Tests
+
+- Unit tests: `__tests__/*.spec.tsx` - Use `@testing-library/react` and Vitest (jsdom)
+- Test both simple interactions (single action) and complex interactions (multiple steps)
 
 ## Workspace Structure
 
@@ -118,28 +138,6 @@ ebay-{component}/
     └── *.spec.tsx           # Tests using @testing-library/react
 ```
 
-### Testing Philosophy
-
-Tests are organized by interaction type and follow WCAG 2.2 accessibility standards:
-
-- **Click Interactions** - Mouse/touch interactions
-- **Keyboard Interactions** - Keyboard navigation (Arrow keys, Enter, Space, Escape, Tab, etc.)
-- **Focus Management** - Focus trapping, roving tabindex, active descendant
-- **ARIA Attributes** - Proper roles, states, and properties
-- **Accessibility Compliance** - WCAG 2.2 Level A and AA using axe-core
-
-#### Marko Component Tests
-
-- Browser tests: `test.browser.js` - Use `@marko/testing-library` with Vitest browser mode (Playwright)
-- Server tests: `test.server.js` - Test SSR output
-- Accessibility tests: `accessibility.browser.js` - Dedicated accessibility test suites
-- Storybook interaction tests: In `{component}.stories.ts` using `play` function
-
-#### React Component Tests
-
-- Unit tests: `__tests__/*.spec.tsx` - Use `@testing-library/react` and Vitest (jsdom)
-- Test both simple interactions (single action) and complex interactions (multiple steps)
-
 ### Accessibility Resources
 
 Components are built following:
@@ -206,16 +204,7 @@ React: `<EbayButton id="my-id"/>`
 
 ### Creating Tests
 
-When creating accessibility tests following the `.clinerules` specifications:
-
-1. Review component documentation first (overview, accessibility, CSS pages)
-2. Check existing tests to avoid duplication
-3. For Marko: Create `accessibility.browser.js` in `src/components/{component}/test/`
-4. For Marko: Add Storybook interaction tests in `{component}.stories.ts` using `play` function
-5. For React: Add tests in `src/{component}/__tests__/*.spec.tsx`
-6. Organize tests by interaction type (Click, Keyboard, Focus, ARIA, Accessibility)
-7. Test both enabled and disabled states
-8. Use `beforeEach` blocks for nested test setup (given/when/then pattern)
+When creating accessibility tests follow the specifications outlined in `testing.md`.
 
 ### Changesets
 

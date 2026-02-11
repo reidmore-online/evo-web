@@ -228,12 +228,6 @@ Default.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; ste
     
     const button = canvas.getByRole("button");
 
-    await step("Check initial rendering", async () => {
-        await expect(button).toBeInTheDocument();
-        await expect(button).not.toBeDisabled();
-        await expect(button.textContent?.trim()).toBe("Button");
-    });
-
     await step("Test click interaction", async () => {
         await userEvent.click(button);
         await expect(button).toBeInTheDocument();
@@ -278,11 +272,6 @@ Disabled.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; st
     const canvas = within(canvasElement);
     
     const button = canvas.getByRole("button");
-
-    await step("Verify disabled state", async () => {
-        await expect(button).toBeDisabled();
-        await expect(button.textContent?.trim()).toBe("Disabled Button");
-    });
 
     await step("Test that click does not work when disabled", async () => {
         await userEvent.click(button);
@@ -389,12 +378,6 @@ LinkButton.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; 
     
     const link = canvas.getByRole("link");
 
-    await step("Verify link rendering", async () => {
-        await expect(link).toBeInTheDocument();
-        await expect(link).toHaveAttribute("href", "/test-link");
-        await expect(link.textContent?.trim()).toBe("Link Button");
-    });
-
     await step("Test link is keyboard focusable", async () => {
         link.focus();
         await expect(link).toHaveFocus();
@@ -426,11 +409,6 @@ PrimaryButton.play = async ({ canvasElement, step }: { canvasElement: HTMLElemen
     
     const button = canvas.getByRole("button");
 
-    await step("Verify primary button accessibility", async () => {
-        await expect(button).toBeInTheDocument();
-        await expect(button.textContent?.trim()).toBe("Primary Button");
-    });
-
     await step("Test click interaction", async () => {
         await userEvent.click(button);
         await expect(button).toBeInTheDocument();
@@ -441,6 +419,12 @@ PrimaryButton.play = async ({ canvasElement, step }: { canvasElement: HTMLElemen
         await expect(button).toHaveFocus();
         await userEvent.keyboard("{Tab}");
         await expect(button).not.toHaveFocus();
+    });
+
+    await step("Test keyboard interaction - Space key", async () => {
+        button.focus();
+        await userEvent.keyboard(" ");
+        await expect(button).toHaveFocus();
     });
 };
 
@@ -464,14 +448,15 @@ DestructiveButton.play = async ({ canvasElement, step }: { canvasElement: HTMLEl
     
     const button = canvas.getByRole("button");
 
-    await step("Verify destructive button accessibility", async () => {
-        await expect(button).toBeInTheDocument();
-        await expect(button.textContent?.trim()).toBe("Delete");
-    });
-
     await step("Test click interaction", async () => {
         await userEvent.click(button);
         await expect(button).toBeInTheDocument();
+    });
+
+    await step("Test keyboard interaction - Space key", async () => {
+        button.focus();
+        await userEvent.keyboard(" ");
+        await expect(button).toHaveFocus();
     });
 };
 
@@ -494,14 +479,14 @@ SmallButton.play = async ({ canvasElement, step }: { canvasElement: HTMLElement;
     
     const button = canvas.getByRole("button");
 
-    await step("Verify small button maintains accessibility", async () => {
+    await step("Test click interaction", async () => {
+        await userEvent.click(button);
         await expect(button).toBeInTheDocument();
-        await expect(button.textContent?.trim()).toBe("Small Button");
     });
 
-    await step("Test button is interactive", async () => {
-        await userEvent.click(button);
+    await step("Test keyboard interaction - Space key", async () => {
         button.focus();
+        await userEvent.keyboard(" ");
         await expect(button).toHaveFocus();
     });
 };
@@ -525,14 +510,14 @@ LargeButton.play = async ({ canvasElement, step }: { canvasElement: HTMLElement;
     
     const button = canvas.getByRole("button");
 
-    await step("Verify large button maintains accessibility", async () => {
+    await step("Test click interaction", async () => {
+        await userEvent.click(button);
         await expect(button).toBeInTheDocument();
-        await expect(button.textContent?.trim()).toBe("Large Button");
     });
 
-    await step("Test button is interactive", async () => {
-        await userEvent.click(button);
+    await step("Test keyboard interaction - Space key", async () => {
         button.focus();
+        await userEvent.keyboard(" ");
         await expect(button).toHaveFocus();
     });
 };
