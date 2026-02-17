@@ -9,6 +9,7 @@ import ExpandButtonTemplate from "./examples/expand-button.marko";
 import ExpandButtonTemplateCode from "./examples/expand-button.marko?raw";
 import { Story } from "@storybook/marko";
 import { expect, within, userEvent, waitFor } from "@storybook/test";
+import { playDefault } from "../../../../../src/storybook-tests/button-interactions.ts";
 
 const Template: Story<Input> = (args: Input) => ({
     input: addRenderBodies(args),
@@ -223,36 +224,7 @@ Default.parameters = {
     },
 };
 
-Default.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
-    const canvas = within(canvasElement);
-    
-    const button = canvas.getByRole("button");
-
-    await step("Test click interaction", async () => {
-        await userEvent.click(button);
-        await expect(button).toBeInTheDocument();
-    });
-
-    await step("Test keyboard interaction - Space key", async () => {
-        button.focus();
-        await userEvent.keyboard(" ");
-        await expect(button).toHaveFocus();
-    });
-
-    await step("Test keyboard interaction - Enter key", async () => {
-        button.focus();
-        await userEvent.keyboard("{Enter}");
-        await expect(button).toHaveFocus();
-    });
-
-    await step("Test focus management", async () => {
-        await userEvent.click(button);
-        await expect(button).toHaveFocus();
-
-        await userEvent.keyboard("{Tab}");
-        await expect(button).not.toHaveFocus();
-    });
-};
+Default.play = playDefault();
 
 export const Disabled: Story<Input> = Template.bind({});
 Disabled.args = {
@@ -299,32 +271,16 @@ PartiallyDisabled.parameters = {
     },
 };
 
-PartiallyDisabled.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
+PartiallyDisabled.play = playDefault(async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
     const canvas = within(canvasElement);
-    
     const button = canvas.getByRole("button");
 
     await step("Verify partially disabled state", async () => {
         await expect(button).not.toBeDisabled();
         await expect(button).toHaveAttribute("aria-disabled", "true");
     });
+});
 
-    await step("Test that button is still focusable", async () => {
-        button.focus();
-        await expect(button).toHaveFocus();
-    });
-
-    await step("Test click interaction on partially disabled button", async () => {
-        await userEvent.click(button);
-        await expect(button).toHaveAttribute("aria-disabled", "true");
-    });
-
-    await step("Test keyboard interaction on partially disabled button", async () => {
-        button.focus();
-        await userEvent.keyboard(" ");
-        await expect(button).toHaveFocus();
-    });
-};
 
 export const LoadingState: Story<Input> = Template.bind({});
 LoadingState.args = {
@@ -404,30 +360,6 @@ PrimaryButton.parameters = {
     },
 };
 
-PrimaryButton.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
-    const canvas = within(canvasElement);
-    
-    const button = canvas.getByRole("button");
-
-    await step("Test click interaction", async () => {
-        await userEvent.click(button);
-        await expect(button).toBeInTheDocument();
-    });
-
-    await step("Test keyboard navigation", async () => {
-        button.focus();
-        await expect(button).toHaveFocus();
-        await userEvent.keyboard("{Tab}");
-        await expect(button).not.toHaveFocus();
-    });
-
-    await step("Test keyboard interaction - Space key", async () => {
-        button.focus();
-        await userEvent.keyboard(" ");
-        await expect(button).toHaveFocus();
-    });
-};
-
 export const DestructiveButton: Story<Input> = Template.bind({});
 DestructiveButton.args = {
     renderBody: "Delete",
@@ -441,23 +373,6 @@ DestructiveButton.parameters = {
             code: tagToString("ebay-button", DestructiveButton.args),
         },
     },
-};
-
-DestructiveButton.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
-    const canvas = within(canvasElement);
-    
-    const button = canvas.getByRole("button");
-
-    await step("Test click interaction", async () => {
-        await userEvent.click(button);
-        await expect(button).toBeInTheDocument();
-    });
-
-    await step("Test keyboard interaction - Space key", async () => {
-        button.focus();
-        await userEvent.keyboard(" ");
-        await expect(button).toHaveFocus();
-    });
 };
 
 export const SmallButton: Story<Input> = Template.bind({});
@@ -503,23 +418,6 @@ LargeButton.parameters = {
             code: tagToString("ebay-button", LargeButton.args),
         },
     },
-};
-
-LargeButton.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
-    const canvas = within(canvasElement);
-    
-    const button = canvas.getByRole("button");
-
-    await step("Test click interaction", async () => {
-        await userEvent.click(button);
-        await expect(button).toBeInTheDocument();
-    });
-
-    await step("Test keyboard interaction - Space key", async () => {
-        button.focus();
-        await userEvent.keyboard(" ");
-        await expect(button).toHaveFocus();
-    });
 };
 
 export const ExpandButton = buildExtensionTemplate(
