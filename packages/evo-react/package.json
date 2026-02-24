@@ -24,6 +24,9 @@
       "default": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "npm run type:check && npm run test && vite build",
     "build:storybook": "storybook build -o ./_site/evo-react/$(git branch --show-current)",
