@@ -8,7 +8,7 @@ import type {
   Size,
   Split,
 } from "./types";
-import "@ebay/skin/button";
+import "@ebay/skin/button.mjs";
 
 export function EvoButton(props: AnchorButtonProps): React.JSX.Element;
 export function EvoButton(props: NativeButtonProps): React.JSX.Element;
