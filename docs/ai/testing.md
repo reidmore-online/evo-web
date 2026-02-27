@@ -20,17 +20,17 @@ All components in the library are documented, when writing a test for a componen
 ## Project Structure
 
 /packages
-/ebayui-core
+    /ebayui-core
+        /src
+            /components
+                /ebay-{component}
+                    /test
+    /ebayui-core-react
+        /src
+            /ebay-{component}
+                /**tests**
 /src
-/components
-/ebay-{component}
-/test
-/ebayui-core-react
-/src
-/ebay-{component}
-/**tests**
-/src
-/storybook-tests
+    /storybook-tests
 
 ## Tests
 
