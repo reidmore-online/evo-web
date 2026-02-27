@@ -20,21 +20,21 @@ All components in the library are documented, when writing a test for a componen
 ## Project Structure
 
 /packages
-    /ebayui-core
-        /src
-            /components
-                /ebay-{component}
-                    /test
-    /ebayui-core-react
-        /src
-            /ebay-{component}
-                /__tests__
+/ebayui-core
 /src
-    /storybook-tests
+/components
+/ebay-{component}
+/test
+/ebayui-core-react
+/src
+/ebay-{component}
+/**tests**
+/src
+/storybook-tests
 
 ## Tests
 
-Determine supported interactions by reading the component's accessibility documentation page before writing any tests.Each component should have the following types of tests and should be grouped in these types:
+Determine supported interactions by reading the component's accessibility documentation page before writing any tests. Each component should have the following types of tests and should be grouped in these types:
 
 - Click Interactions
 - Keyboard Interactions
@@ -105,37 +105,21 @@ New end to end test files will be created as part of the component storybook fil
 
 ### Creating tests
 
-Analysis:
-    1. Review component documentation first (overview, accessibility, CSS pages).
-    2. Determine which framework you are working in, Marko or React, by checking the file extension and directory path.
-    3. Check existing test files in the directory to avoid duplication:
-        - For `ebayui-core`: `src/{component}/test/test.browser.js` and `{component}/test/test.server.js`
-        - For `ebayui-core-react`: `src/{component}/__tests__/index.spec.tsx`, `{component}/__tests__/index.stories.tsx`, `{component}/__tests__/render.spec.tsx`
-    4. Create a test plan for the component that outlines the different tests that need to be written and ask for clarification if there are questions. Separate test plans by unit tests and interaction tests.
-        - For interaction tests, if there are repeated tests for different component variants, plan to create a shared test file that can be referenced by all variants.
+Analysis: 1. Review component documentation first (overview, accessibility, CSS pages). 2. Determine which framework you are working in, Marko or React, by checking the file extension and directory path. 3. Check existing test files in the directory to avoid duplication: - For `ebayui-core`: `src/{component}/test/test.browser.js` and `{component}/test/test.server.js` - For `ebayui-core-react`: `src/{component}/__tests__/index.spec.tsx`, `{component}/__tests__/index.stories.tsx`, `{component}/__tests__/render.spec.tsx` 4. Create a test plan for the component that outlines the different tests that need to be written and ask for clarification if there are questions. Separate test plans by unit tests and interaction tests. - For interaction tests, if there are repeated tests for different component variants, plan to create a shared test file that can be referenced by all variants.
 
-Generation:
-    1. Once the test plan is approved, generate the unit tests according to plan for each framework:
-        - For Marko: Create `accessibility.browser.js` in `packages/ebayui-core/src/components/{component}/test/`
-        - For React: Create tests in `packages/ebayui-core-react/src/{component}/__tests__/accessibility.spec.tsx`
-    2. Once the unit tests are created, move on to the interaction tests for each framework:
-        - For shared tests: Create a new `src/storybook-tests/{component}-interactions.ts` file containing the tests.
-        - For Marko: Add interaction tests to the `packages/ebayui-core/src/components/{component}/{component}.stories.ts` file
-        - For React: Add interaction tests to the `packages/ebayui-core-react/src/{component}/__tests__/index.stories.tsx` file
-    2. Organize tests by type (Click, Keyboard, Focus, ARIA).
-    3. Test both enabled and disabled states.
-    4. Use `beforeEach` blocks for nested test setup (given/when/then pattern).
+Generation: 1. Once the test plan is approved, generate the unit tests according to plan for each framework: - For Marko: Create `accessibility.browser.js` in `packages/ebayui-core/src/components/{component}/test/` - For React: Create tests in `packages/ebayui-core-react/src/{component}/__tests__/accessibility.spec.tsx` 2. Once the unit tests are created, move on to the interaction tests for each framework: - For shared tests: Create a new `src/storybook-tests/{component}-interactions.ts` file containing the tests. - For Marko: Add interaction tests to the `packages/ebayui-core/src/components/{component}/{component}.stories.ts` file - For React: Add interaction tests to the `packages/ebayui-core-react/src/{component}/__tests__/index.stories.tsx` file 2. Organize tests by type (Click, Keyboard, Focus, ARIA). 3. Test both enabled and disabled states. 4. Use `beforeEach` blocks for nested test setup (given/when/then pattern). 5. Use `@testing-library/user-event`'s `userEvent` library over `pressKey` for keyboard tests.
 
 ### Test constraints
 
-- Do not create duplicate tests for the same component in the same framework. 
-- Do not create tests for ARIA properties or accessibility interactions that are not documented. 
+- Do not create duplicate tests for the same component in the same framework.
+- Do not create tests for ARIA properties or accessibility interactions that are not documented.
 
 ### Test examples
 
 #### Keyboard test
 
 Unit test:
+
 ```
 describe("when Enter key is pressed", () => {
                 beforeEach(async () => {
@@ -148,14 +132,14 @@ describe("when Enter key is pressed", () => {
                     expect(clickHandler).toHaveBeenCalledTimes(1);
                 });
             });
-};
 ```
 
 Interaction test:
+
 ```
 Default.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
     const canvas = within(canvasElement);
-    
+
     const button = canvas.getByRole("button");
 
     await step("Test keyboard interaction - Enter key", async () => {
@@ -169,6 +153,7 @@ Default.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; ste
 #### Focus test
 
 Unit test:
+
 ```
         describe("when button receives focus", () => {
             beforeEach(async () => {
@@ -193,11 +178,12 @@ Unit test:
         });
 ```
 
-Interaction test: 
+Interaction test:
+
 ```
 Default.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
     const canvas = within(canvasElement);
-    
+
     const button = canvas.getByRole("button");
     await step("Test focus management", async () => {
         await userEvent.click(button);
@@ -211,7 +197,8 @@ Default.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; ste
 
 #### ARIA test
 
-Unit test: 
+Unit test:
+
 ```
 describe("given a standard button", () => {
         beforeEach(async () => {
@@ -227,16 +214,17 @@ describe("given a standard button", () => {
 };
 ```
 
-Interaction test: 
+Interaction test:
+
 ```
 LoadingState.play = async ({ canvasElement, step }: { canvasElement: HTMLElement; step: any }) => {
     const canvas = within(canvasElement);
-    
+
     const button = canvas.getByRole("button");
 
     await step("Verify loading state and aria-label", async () => {
         await expect(button).toHaveAttribute("aria-label", "Loading, please wait");
-        
+
         const spinner = button.querySelector(".progress-spinner");
         await expect(spinner).toBeInTheDocument();
     });

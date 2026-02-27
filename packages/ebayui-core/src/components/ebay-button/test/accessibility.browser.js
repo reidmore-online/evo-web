@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, it, expect } from "vitest";
 import { render, cleanup, fireEvent } from "@marko/testing-library";
 import { userEvent } from "@testing-library/user-event";
-import { pressKey } from "../../../common/test-utils/browser";
+import { createRenderBody } from "../../../common/test-utils/shared";
 import template from "../index.marko";
 
 afterEach(cleanup);
@@ -13,7 +13,7 @@ describe("Click Interactions", () => {
     describe("given enabled button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Click me",
+                renderBody: createRenderBody("Click me"),
             });
         });
 
@@ -50,7 +50,7 @@ describe("Click Interactions", () => {
     describe("given disabled button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Click me",
+                renderBody: createRenderBody("Click me"),
                 disabled: true,
             });
         });
@@ -69,7 +69,7 @@ describe("Click Interactions", () => {
     describe("given partially disabled button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Click me",
+                renderBody: createRenderBody("Click me"),
                 partiallyDisabled: true,
             });
         });
@@ -89,14 +89,19 @@ describe("Click Interactions", () => {
     describe("given link button with href", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Link button",
-                href: "/test-url",
+                renderBody: createRenderBody("Link button"),
+                href: "#",
             });
         });
 
         describe("when link is clicked", () => {
             beforeEach(async () => {
-                await fireEvent.click(component.getByRole("link"));
+                const link = component.getByRole("link");
+                const clickEvent = new MouseEvent("click", {
+                    bubbles: true,
+                    cancelable: true,
+                });
+                link.dispatchEvent(clickEvent);
             });
 
             it("then it emits click event", () => {
@@ -111,7 +116,7 @@ describe("Keyboard Interactions", () => {
     describe("given enabled button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Press me",
+                renderBody: createRenderBody("Press me"),
             });
         });
 
@@ -119,7 +124,8 @@ describe("Keyboard Interactions", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
                 button.focus();
-                await pressKey(button, { key: "Enter", keyCode: 13 });
+                const user = userEvent.setup();
+                await user.keyboard("{Enter}");
             });
 
             it("then it emits click event", () => {
@@ -137,7 +143,8 @@ describe("Keyboard Interactions", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
                 button.focus();
-                await pressKey(button, { key: " ", keyCode: 32 });
+                const user = userEvent.setup();
+                await user.keyboard(" ");
             });
 
             it("then it emits click event", () => {
@@ -150,7 +157,8 @@ describe("Keyboard Interactions", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
                 button.focus();
-                await pressKey(button, { key: "Escape", keyCode: 27 });
+                const user = userEvent.setup();
+                await user.keyboard("{Escape}");
             });
 
             it("then it emits escape event", () => {
@@ -172,7 +180,7 @@ describe("Keyboard Interactions", () => {
     describe("given disabled button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Press me",
+                renderBody: createRenderBody("Press me"),
                 disabled: true,
             });
         });
@@ -180,7 +188,8 @@ describe("Keyboard Interactions", () => {
         describe("when Enter key is pressed", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
-                await pressKey(button, { key: "Enter", keyCode: 13 });
+                const user = userEvent.setup();
+                await user.keyboard("{Enter}");
             });
 
             it("then it does not emit click event", () => {
@@ -191,7 +200,8 @@ describe("Keyboard Interactions", () => {
         describe("when Space key is pressed", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
-                await pressKey(button, { key: " ", keyCode: 32 });
+                const user = userEvent.setup();
+                await user.keyboard(" ");
             });
 
             it("then it does not emit click event", () => {
@@ -202,7 +212,8 @@ describe("Keyboard Interactions", () => {
         describe("when Escape key is pressed", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
-                await pressKey(button, { key: "Escape", keyCode: 27 });
+                const user = userEvent.setup();
+                await user.keyboard("{Escape}");
             });
 
             it("then it does not emit escape event", () => {
@@ -214,7 +225,7 @@ describe("Keyboard Interactions", () => {
     describe("given partially disabled button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Press me",
+                renderBody: createRenderBody("Press me"),
                 partiallyDisabled: true,
             });
         });
@@ -223,7 +234,8 @@ describe("Keyboard Interactions", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
                 button.focus();
-                await pressKey(button, { key: "Enter", keyCode: 13 });
+                const user = userEvent.setup();
+                await user.keyboard("{Enter}");
             });
 
             it("then it emits click event", () => {
@@ -236,7 +248,8 @@ describe("Keyboard Interactions", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
                 button.focus();
-                await pressKey(button, { key: "Escape", keyCode: 27 });
+                const user = userEvent.setup();
+                await user.keyboard("{Escape}");
             });
 
             it("then it emits escape event", () => {
@@ -251,7 +264,7 @@ describe("Focus Management", () => {
     describe("given an enabled button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Focus me",
+                renderBody: createRenderBody("Focus me"),
             });
         });
 
@@ -317,7 +330,7 @@ describe("Focus Management", () => {
     describe("given a disabled button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Focus me",
+                renderBody: createRenderBody("Focus me"),
                 disabled: true,
             });
         });
@@ -343,7 +356,7 @@ describe("Focus Management", () => {
     describe("given a partially disabled button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Focus me",
+                renderBody: createRenderBody("Focus me"),
                 partiallyDisabled: true,
             });
         });
@@ -369,8 +382,8 @@ describe("Focus Management", () => {
     describe("given a link button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Link button",
-                href: "/test",
+                renderBody: createRenderBody("Link button"),
+                href: "#",
             });
         });
 
@@ -397,7 +410,7 @@ describe("ARIA Attributes", () => {
     describe("given a standard button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Standard button",
+                renderBody: createRenderBody("Standard button"),
             });
         });
 
@@ -425,7 +438,7 @@ describe("ARIA Attributes", () => {
     describe("given a disabled button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Disabled button",
+                renderBody: createRenderBody("Disabled button"),
                 disabled: true,
             });
         });
@@ -444,7 +457,7 @@ describe("ARIA Attributes", () => {
     describe("given a partially disabled button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Partially disabled",
+                renderBody: createRenderBody("Partially disabled"),
                 partiallyDisabled: true,
             });
         });
@@ -463,7 +476,7 @@ describe("ARIA Attributes", () => {
     describe("given a button with loading state", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Loading button",
+                renderBody: createRenderBody("Loading button"),
                 bodyState: "loading",
             });
         });
@@ -483,7 +496,7 @@ describe("ARIA Attributes", () => {
     describe("given a button with loading state and custom a11y text", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Loading button",
+                renderBody: createRenderBody("Loading button"),
                 bodyState: "loading",
                 a11yText: "Loading results, please wait",
             });
@@ -501,7 +514,7 @@ describe("ARIA Attributes", () => {
     describe("given a button with expand state", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Expand button",
+                renderBody: createRenderBody("Expand button"),
                 bodyState: "expand",
             });
         });
@@ -515,7 +528,7 @@ describe("ARIA Attributes", () => {
     describe("given a link button", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Link button",
+                renderBody: createRenderBody("Link button"),
                 href: "/test-url",
             });
         });
@@ -539,7 +552,7 @@ describe("ARIA Attributes", () => {
     describe("given a button with aria-label", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Button text",
+                renderBody: createRenderBody("Button text"),
                 ariaLabel: "Custom label",
             });
         });
@@ -553,7 +566,7 @@ describe("ARIA Attributes", () => {
     describe("given a button with custom attributes", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Custom button",
+                renderBody: createRenderBody("Custom button"),
                 id: "test-button",
                 name: "test-name",
             });
