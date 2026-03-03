@@ -7,6 +7,7 @@ import { EbayIconMenu20 } from "../../ebay-icon/icons/ebay-icon-menu-20";
 import { EbayIconSettings16 } from "../../ebay-icon/icons/ebay-icon-settings-16";
 import { EbayIconDelete16 } from "../../ebay-icon/icons/ebay-icon-delete-16";
 import { EbayIconChevronDown12 } from "../../ebay-icon/icons/ebay-icon-chevron-down-12";
+import { playDefault } from "../../../../../src/storybook-tests/button-interactions.ts";
 
 const meta: Meta<typeof EbayButton> = {
     component: EbayButton,
@@ -34,43 +35,8 @@ export const Default: StoryFn<typeof EbayButton> = () => (
     </>
 );
 
-Default.play = async ({ canvasElement, step }) => {
+Default.play = playDefault(async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    await step("Check initial button rendering", async () => {
-        const button = canvas.getByText("Hello, I am a button!");
-        await expect(button).toBeInTheDocument();
-        await expect(button).not.toBeDisabled();
-    });
-
-    await step("Test button click interaction", async () => {
-        const button = canvas.getByText("Hello, I am a button!");
-        await userEvent.click(button);
-        await expect(button).toBeInTheDocument();
-    });
-
-    await step("Test keyboard interaction - Space key", async () => {
-        const button = canvas.getByText("Hello, I am a button!");
-        button.focus();
-        await userEvent.keyboard(" ");
-        await expect(button).toHaveFocus();
-    });
-
-    await step("Test keyboard interaction - Enter key", async () => {
-        const button = canvas.getByText("Hello, I am a button!");
-        button.focus();
-        await userEvent.keyboard("{Enter}");
-        await expect(button).toHaveFocus();
-    });
-
-    await step("Test focus management with Tab key", async () => {
-        const button = canvas.getByText("Hello, I am a button!");
-        await userEvent.click(button);
-        await expect(button).toHaveFocus();
-
-        await userEvent.keyboard("{Tab}");
-        await expect(button).not.toHaveFocus();
-    });
 
     await step("Verify link button rendering", async () => {
         const link = canvas.getByRole("link");
@@ -83,7 +49,7 @@ Default.play = async ({ canvasElement, step }) => {
         link.focus();
         await expect(link).toHaveFocus();
     });
-};
+});
 
 export const Size: StoryFn<typeof EbayButton> = () => (
     <>
@@ -350,7 +316,7 @@ Disabled.play = async ({ canvasElement, step }) => {
     });
 
     await step("Verify disabled link does not have href", async () => {
-        const link = canvas.getByRole("link");
+        const link = canvas.getByText("Link");
         await expect(link).not.toHaveAttribute("href");
     });
 };
@@ -361,34 +327,15 @@ export const PartiallyDisabledButton: StoryFn<typeof EbayButton> = () => (
     </EbayButton>
 );
 
-PartiallyDisabledButton.play = async ({ canvasElement, step }) => {
+PartiallyDisabledButton.play = playDefault(async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    const button = canvas.getByRole("button");
 
     await step("Verify partially disabled state", async () => {
-        const button = canvas.getByRole("button");
         await expect(button).not.toBeDisabled();
         await expect(button).toHaveAttribute("aria-disabled", "true");
     });
-
-    await step("Test that button is still focusable", async () => {
-        const button = canvas.getByRole("button");
-        button.focus();
-        await expect(button).toHaveFocus();
-    });
-
-    await step("Test click interaction on partially disabled button", async () => {
-        const button = canvas.getByRole("button");
-        await userEvent.click(button);
-        await expect(button).toHaveAttribute("aria-disabled", "true");
-    });
-
-    await step("Test keyboard interaction on partially disabled button", async () => {
-        const button = canvas.getByRole("button");
-        button.focus();
-        await userEvent.keyboard(" ");
-        await expect(button).toHaveFocus();
-    });
-};
+});
 
 export const Truncated: StoryFn<typeof EbayButton> = () => (
     <div>

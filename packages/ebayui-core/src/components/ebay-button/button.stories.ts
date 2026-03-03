@@ -8,7 +8,7 @@ import Readme from "./README.md";
 import ExpandButtonTemplate from "./examples/expand-button.marko";
 import ExpandButtonTemplateCode from "./examples/expand-button.marko?raw";
 import { Story } from "@storybook/marko";
-import { expect, within, userEvent, waitFor } from "@storybook/test";
+import { expect, within, userEvent } from "@storybook/test";
 import { playDefault } from "../../../../../src/storybook-tests/button-interactions.ts";
 
 const Template: Story<Input> = (args: Input) => ({

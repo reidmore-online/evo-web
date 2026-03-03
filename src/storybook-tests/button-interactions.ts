@@ -5,6 +5,11 @@ export const playDefault = (additionalTests) => async ({ canvasElement, step }: 
     
     const button = canvas.getByRole("button");
 
+    await step("Check initial button rendering", async () => {
+        await expect(button).toBeInTheDocument();
+        await expect(button).not.toBeDisabled();
+    });
+    
     await step("Test click interaction", async () => {
         await userEvent.click(button);
         await expect(button).toBeInTheDocument();
