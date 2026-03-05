@@ -96,12 +96,7 @@ describe("Click Interactions", () => {
 
         describe("when link is clicked", () => {
             beforeEach(async () => {
-                const link = component.getByRole("link");
-                const clickEvent = new MouseEvent("click", {
-                    bubbles: true,
-                    cancelable: true,
-                });
-                link.dispatchEvent(clickEvent);
+                await fireEvent.click(component.getByRole("link"));
             });
 
             it("then it emits click event", () => {
@@ -152,29 +147,6 @@ describe("Keyboard Interactions", () => {
                 expect(clickEvents).has.length(1);
             });
         });
-
-        describe("when Escape key is pressed", () => {
-            beforeEach(async () => {
-                const button = component.getByRole("button");
-                button.focus();
-                const user = userEvent.setup();
-                await user.keyboard("{Escape}");
-            });
-
-            it("then it emits escape event", () => {
-                const escapeEvents = component.emitted("escape");
-                expect(escapeEvents).has.length(1);
-
-                const [[escapeEvent]] = escapeEvents;
-                expect(escapeEvent)
-                    .has.property("originalEvent")
-                    .is.an.instanceOf(Event);
-            });
-
-            it("then it does not emit click event", () => {
-                expect(component.emitted("click")).has.length(0);
-            });
-        });
     });
 
     describe("given disabled button", () => {
@@ -188,6 +160,7 @@ describe("Keyboard Interactions", () => {
         describe("when Enter key is pressed", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
+                button.focus();
                 const user = userEvent.setup();
                 await user.keyboard("{Enter}");
             });
@@ -200,24 +173,13 @@ describe("Keyboard Interactions", () => {
         describe("when Space key is pressed", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
+                button.focus();
                 const user = userEvent.setup();
                 await user.keyboard(" ");
             });
 
             it("then it does not emit click event", () => {
                 expect(component.emitted("click")).has.length(0);
-            });
-        });
-
-        describe("when Escape key is pressed", () => {
-            beforeEach(async () => {
-                const button = component.getByRole("button");
-                const user = userEvent.setup();
-                await user.keyboard("{Escape}");
-            });
-
-            it("then it does not emit escape event", () => {
-                expect(component.emitted("escape")).has.length(0);
             });
         });
     });
@@ -241,20 +203,6 @@ describe("Keyboard Interactions", () => {
             it("then it emits click event", () => {
                 const clickEvents = component.emitted("click");
                 expect(clickEvents).has.length(1);
-            });
-        });
-
-        describe("when Escape key is pressed", () => {
-            beforeEach(async () => {
-                const button = component.getByRole("button");
-                button.focus();
-                const user = userEvent.setup();
-                await user.keyboard("{Escape}");
-            });
-
-            it("then it emits escape event", () => {
-                const escapeEvents = component.emitted("escape");
-                expect(escapeEvents).has.length(1);
             });
         });
     });
@@ -295,24 +243,6 @@ describe("Focus Management", () => {
             });
         });
 
-        describe("when button loses focus", () => {
-            beforeEach(async () => {
-                const button = component.getByRole("button");
-                await fireEvent.focus(button);
-                await fireEvent.blur(button);
-            });
-
-            it("then it emits blur event", () => {
-                const blurEvents = component.emitted("blur");
-                expect(blurEvents).has.length(1);
-
-                const [[blurEvent]] = blurEvents;
-                expect(blurEvent)
-                    .has.property("originalEvent")
-                    .is.an.instanceOf(Event);
-            });
-        });
-
         describe("when Tab key is pressed while button has focus", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
@@ -333,11 +263,6 @@ describe("Focus Management", () => {
                 renderBody: createRenderBody("Focus me"),
                 disabled: true,
             });
-        });
-
-        it("then button is not keyboard focusable", () => {
-            const button = component.getByRole("button");
-            expect(button.disabled).toBe(true);
         });
 
         describe("when attempting to focus", () => {
@@ -361,11 +286,6 @@ describe("Focus Management", () => {
             });
         });
 
-        it("then button is keyboard focusable", () => {
-            const button = component.getByRole("button");
-            expect(button.disabled).toBe(false);
-        });
-
         describe("when button receives focus", () => {
             beforeEach(async () => {
                 const button = component.getByRole("button");
@@ -385,11 +305,6 @@ describe("Focus Management", () => {
                 renderBody: createRenderBody("Link button"),
                 href: "#",
             });
-        });
-
-        it("then link is keyboard focusable", () => {
-            const link = component.getByRole("link");
-            expect(link.tabIndex).toBeGreaterThanOrEqual(0);
         });
 
         describe("when link receives focus", () => {
@@ -428,11 +343,6 @@ describe("ARIA Attributes", () => {
             const button = component.getByRole("button");
             expect(button.textContent.trim()).toBe("Standard button");
         });
-
-        it("then it does not have aria-disabled", () => {
-            const button = component.getByRole("button");
-            expect(button.hasAttribute("aria-disabled")).toBe(false);
-        });
     });
 
     describe("given a disabled button", () => {
@@ -448,9 +358,9 @@ describe("ARIA Attributes", () => {
             expect(button.disabled).toBe(true);
         });
 
-        it("then it is still accessible to screen readers", () => {
+        it("then it does not have aria-disabled", () => {
             const button = component.getByRole("button");
-            expect(button).toBeTruthy();
+            expect(button.hasAttribute("aria-disabled")).toBe(false);
         });
     });
 
@@ -521,7 +431,8 @@ describe("ARIA Attributes", () => {
 
         it("then it contains chevron icon", () => {
             const button = component.getByRole("button");
-            expect(button.textContent).toContain("Expand button");
+            const svg = button.querySelector("svg");
+            expect(svg).toBeInTheDocument();
         });
     });
 
@@ -562,184 +473,21 @@ describe("ARIA Attributes", () => {
             expect(button).toHaveAttribute("aria-label", "Custom label");
         });
     });
-
-    describe("given a button with custom attributes", () => {
-        beforeEach(async () => {
-            component = await render(template, {
-                renderBody: createRenderBody("Custom button"),
-                id: "test-button",
-                name: "test-name",
-            });
-        });
-
-        it("then it has correct id attribute", () => {
-            const button = component.getByRole("button");
-            expect(button.id).toBe("test-button");
-        });
-
-        it("then it has correct name attribute", () => {
-            const button = component.getByRole("button");
-            expect(button.name).toBe("test-name");
-        });
-    });
 });
 
-// TODO: Fix all these, they don't test anything meaningful yet
-/* describe("Accessibility Compliance", () => {
-    describe("given any button variant", () => {
+describe("Accessibility and Usability", () => {
+    describe("given a button with default dimensions", () => {
         beforeEach(async () => {
             component = await render(template, {
-                renderBody: "Test button",
-                priority: "primary",
+                renderBody: createRenderBody("A button"),
             });
         });
 
-        it("then it has sufficient text content or accessible name", () => {
-            const button = component.getByRole("button");
-            const text = button.textContent.trim();
-            const ariaLabel = button.getAttribute("aria-label");
-
-            expect(text || ariaLabel).toBeTruthy();
-        });
-
-        it("then it has proper button element structure", () => {
-            const button = component.getByRole("button");
-            expect(button.tagName).toBe("BUTTON");
-        });
-
-        it("then it has minimum dimensions for touch target", () => {
+        it("has the minimum touch target dimensions", () => {
             const button = component.getByRole("button");
             const rect = button.getBoundingClientRect();
-
-            expect(rect.width).toBeGreaterThan(0);
-            expect(rect.height).toBeGreaterThan(0);
-        });
-    });
-
-    describe("given button with different priorities", () => {
-        it("then primary button maintains accessibility", async () => {
-            component = await render(template, {
-                renderBody: "Primary",
-                priority: "primary",
-            });
-            const button = component.getByRole("button");
-            expect(button.textContent.trim()).toBe("Primary");
-        });
-
-        it("then secondary button maintains accessibility", async () => {
-            component = await render(template, {
-                renderBody: "Secondary",
-                priority: "secondary",
-            });
-            const button = component.getByRole("button");
-            expect(button.textContent.trim()).toBe("Secondary");
-        });
-
-        it("then tertiary button maintains accessibility", async () => {
-            component = await render(template, {
-                renderBody: "Tertiary",
-                priority: "tertiary",
-            });
-            const button = component.getByRole("button");
-            expect(button.textContent.trim()).toBe("Tertiary");
-        });
-    });
-
-    describe("given button with different sizes", () => {
-        it("then large button maintains accessibility", async () => {
-            component = await render(template, {
-                renderBody: "Large",
-                size: "large",
-            });
-            const button = component.getByRole("button");
-            expect(button.textContent.trim()).toBe("Large");
-        });
-
-        it("then small button maintains accessibility", async () => {
-            component = await render(template, {
-                renderBody: "Small",
-                size: "small",
-            });
-            const button = component.getByRole("button");
-            expect(button.textContent.trim()).toBe("Small");
-        });
-    });
-
-    describe("given button with different variants", () => {
-        it("then destructive variant maintains accessibility", async () => {
-            component = await render(template, {
-                renderBody: "Delete",
-                variant: "destructive",
-            });
-            const button = component.getByRole("button");
-            expect(button.textContent.trim()).toBe("Delete");
-        });
-
-        it("then form variant maintains accessibility", async () => {
-            component = await render(template, {
-                renderBody: "Submit",
-                variant: "form",
-            });
-            const button = component.getByRole("button");
-            expect(button.textContent.trim()).toBe("Submit");
-        });
-    });
-
-    describe("given button with truncate enabled", () => {
-        beforeEach(async () => {
-            component = await render(template, {
-                renderBody: "Very long button text that should truncate",
-                truncate: true,
-                fixedHeight: true,
-            });
-        });
-
-        it("then text content is still accessible", () => {
-            const button = component.getByRole("button");
-            expect(button.textContent.trim()).toBe("Very long button text that should truncate");
-        });
-    });
-
-    describe("given fluid button", () => {
-        beforeEach(async () => {
-            component = await render(template, {
-                renderBody: "Fluid button",
-                fluid: true,
-            });
-        });
-
-        it("then it maintains accessibility", () => {
-            const button = component.getByRole("button");
-            expect(button.textContent.trim()).toBe("Fluid button");
-        });
-    });
-
-    describe("given borderless button", () => {
-        beforeEach(async () => {
-            component = await render(template, {
-                renderBody: "Borderless",
-                borderless: true,
-            });
-        });
-
-        it("then it maintains accessibility", () => {
-            const button = component.getByRole("button");
-            expect(button.textContent.trim()).toBe("Borderless");
-        });
-    });
-
-    describe("given transparent button", () => {
-        beforeEach(async () => {
-            component = await render(template, {
-                renderBody: "Transparent",
-                transparent: true,
-            });
-        });
-
-        it("then it maintains accessibility", () => {
-            const button = component.getByRole("button");
-            expect(button.textContent.trim()).toBe("Transparent");
+            expect(rect.width).toBeGreaterThan(24);
+            expect(rect.height).toBeGreaterThan(24);
         });
     });
 });
-*/

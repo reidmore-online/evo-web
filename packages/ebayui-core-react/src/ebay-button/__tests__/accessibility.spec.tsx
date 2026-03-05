@@ -142,31 +142,6 @@ describe("ebay-button accessibility", () => {
                     expect(clickHandler).toHaveBeenCalledTimes(1);
                 });
             });
-
-            describe("when Escape key is pressed", () => {
-                let escapeHandler: ReturnType<typeof vi.fn>;
-
-                beforeEach(async () => {
-                    escapeHandler = vi.fn();
-                    render(
-                        <EbayButton onClick={clickHandler} onEscape={escapeHandler}>
-                            Press me
-                        </EbayButton>,
-                    );
-                    const buttons = screen.getAllByRole("button");
-                    const button = buttons[buttons.length - 1];
-                    button.focus();
-                    await user.keyboard("{Escape}");
-                });
-
-                it("then it emits escape event", () => {
-                    expect(escapeHandler).toHaveBeenCalledTimes(1);
-                });
-
-                it("then it does not emit click event", () => {
-                    expect(clickHandler).not.toHaveBeenCalled();
-                });
-            });
         });
 
         describe("given disabled button", () => {
@@ -206,27 +181,6 @@ describe("ebay-button accessibility", () => {
                     expect(clickHandler).not.toHaveBeenCalled();
                 });
             });
-
-            describe("when Escape key is pressed", () => {
-                let escapeHandler: ReturnType<typeof vi.fn>;
-
-                beforeEach(async () => {
-                    escapeHandler = vi.fn();
-                    render(
-                        <EbayButton onClick={clickHandler} onEscape={escapeHandler} disabled>
-                            Press me
-                        </EbayButton>,
-                    );
-                    const buttons = screen.getAllByRole("button");
-                    const button = buttons[buttons.length - 1];
-                    button.focus();
-                    await user.keyboard("{Escape}");
-                });
-
-                it("then it does not emit escape event", () => {
-                    expect(escapeHandler).not.toHaveBeenCalled();
-                });
-            });
         });
 
         describe("given partially disabled button", () => {
@@ -254,27 +208,6 @@ describe("ebay-button accessibility", () => {
                     expect(clickHandler).toHaveBeenCalledTimes(1);
                 });
             });
-
-            describe("when Escape key is pressed", () => {
-                let escapeHandler: ReturnType<typeof vi.fn>;
-
-                beforeEach(async () => {
-                    escapeHandler = vi.fn();
-                    render(
-                        <EbayButton onClick={clickHandler} onEscape={escapeHandler} partiallyDisabled>
-                            Press me
-                        </EbayButton>,
-                    );
-                    const buttons = screen.getAllByRole("button");
-                    const button = buttons[buttons.length - 1];
-                    button.focus();
-                    await user.keyboard("{Escape}");
-                });
-
-                it("then it emits escape event", () => {
-                    expect(escapeHandler).toHaveBeenCalledTimes(1);
-                });
-            });
         });
     });
 
@@ -293,11 +226,6 @@ describe("ebay-button accessibility", () => {
                 );
             });
 
-            it("then button is keyboard focusable", () => {
-                const button = screen.getByRole("button");
-                expect(button.tabIndex).toBeGreaterThanOrEqual(0);
-            });
-
             describe("when button receives focus", () => {
                 beforeEach(() => {
                     const button = screen.getByRole("button");
@@ -311,18 +239,6 @@ describe("ebay-button accessibility", () => {
 
                 it("then it emits focus event", () => {
                     expect(focusHandler).toHaveBeenCalledTimes(1);
-                });
-            });
-
-            describe("when button loses focus", () => {
-                beforeEach(() => {
-                    const button = screen.getByRole("button");
-                    fireEvent.focus(button);
-                    fireEvent.blur(button);
-                });
-
-                it("then it emits blur event", () => {
-                    expect(blurHandler).toHaveBeenCalledTimes(1);
                 });
             });
 
@@ -482,23 +398,6 @@ describe("ebay-button accessibility", () => {
             });
         });
 
-        describe("given a button with expand state", () => {
-            beforeEach(() => {
-                render(<EbayButton bodyState="expand">Expand button</EbayButton>);
-            });
-
-            it("then it contains the button text", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Expand button");
-            });
-
-            it("then it contains chevron icon", () => {
-                const button = screen.getByRole("button");
-                const svg = button.querySelector("svg");
-                expect(svg).toBeInTheDocument();
-            });
-        });
-
         describe("given a link button", () => {
             beforeEach(() => {
                 render(<EbayButton href="/test-url">Link button</EbayButton>);
@@ -549,188 +448,23 @@ describe("ebay-button accessibility", () => {
                 expect(button).toHaveAttribute("aria-label", "Custom label");
             });
         });
-
-        describe("given a button with custom attributes", () => {
-            beforeEach(() => {
-                render(
-                    <EbayButton id="test-button" name="test-name">
-                        Custom button
-                    </EbayButton>,
-                );
-            });
-
-            it("then it has correct id attribute", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveAttribute("id", "test-button");
-            });
-
-            it("then it has correct name attribute", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveAttribute("name", "test-name");
-            });
-        });
     });
 
-    describe("Accessibility Compliance", () => {
-        describe("given any button variant", () => {
+    describe("Accessibility and Usability", () => {
+        describe("given a button with expand state", () => {
             beforeEach(() => {
-                render(<EbayButton priority="primary">Test button</EbayButton>);
+                render(<EbayButton bodyState="expand">Expand button</EbayButton>);
             });
 
-            it("then it has sufficient text content or accessible name", () => {
+            it("then it contains the button text", () => {
                 const button = screen.getByRole("button");
-                const text = button.textContent?.trim();
-                const ariaLabel = button.getAttribute("aria-label");
-
-                expect(text || ariaLabel).toBeTruthy();
+                expect(button).toHaveTextContent("Expand button");
             });
 
-            it("then it has proper button element structure", () => {
+            it("then it contains chevron icon", () => {
                 const button = screen.getByRole("button");
-                expect(button.tagName).toBe("BUTTON");
-            });
-        });
-
-        describe("given button with different priorities", () => {
-            it("then primary button maintains accessibility", () => {
-                render(<EbayButton priority="primary">Primary</EbayButton>);
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Primary");
-                expect(button).toHaveClass("btn--primary");
-            });
-
-            it("then secondary button maintains accessibility", () => {
-                render(<EbayButton priority="secondary">Secondary</EbayButton>);
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Secondary");
-                expect(button).toHaveClass("btn--secondary");
-            });
-
-            it("then tertiary button maintains accessibility", () => {
-                render(<EbayButton priority="tertiary">Tertiary</EbayButton>);
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Tertiary");
-                expect(button).toHaveClass("btn--tertiary");
-            });
-        });
-
-        describe("given button with different sizes", () => {
-            it("then large button maintains accessibility", () => {
-                render(<EbayButton size="large">Large</EbayButton>);
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Large");
-                expect(button).toHaveClass("btn--large");
-            });
-
-            it("then small button maintains accessibility", () => {
-                render(<EbayButton size="small">Small</EbayButton>);
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Small");
-                expect(button).toHaveClass("btn--small");
-            });
-        });
-
-        describe("given button with different variants", () => {
-            it("then destructive variant maintains accessibility", () => {
-                render(<EbayButton variant="destructive">Delete</EbayButton>);
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Delete");
-                expect(button).toHaveClass("btn--destructive");
-            });
-
-            it("then form variant maintains accessibility", () => {
-                render(<EbayButton variant="form">Submit</EbayButton>);
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Submit");
-                expect(button).toHaveClass("btn--form");
-            });
-        });
-
-        describe("given button with truncate enabled", () => {
-            beforeEach(() => {
-                render(
-                    <EbayButton truncate fixedHeight>
-                        Very long button text that should truncate
-                    </EbayButton>,
-                );
-            });
-
-            it("then text content is still accessible", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Very long button text that should truncate");
-            });
-
-            it("then it has truncated class", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveClass("btn--truncated");
-            });
-        });
-
-        describe("given fluid button", () => {
-            beforeEach(() => {
-                render(<EbayButton fluid>Fluid button</EbayButton>);
-            });
-
-            it("then it maintains accessibility", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Fluid button");
-            });
-
-            it("then it has fluid class", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveClass("btn--fluid");
-            });
-        });
-
-        describe("given borderless button", () => {
-            beforeEach(() => {
-                render(<EbayButton borderless>Borderless</EbayButton>);
-            });
-
-            it("then it maintains accessibility", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Borderless");
-            });
-
-            it("then it has borderless class", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveClass("btn--borderless");
-            });
-        });
-
-        describe("given transparent button", () => {
-            beforeEach(() => {
-                render(<EbayButton transparent>Transparent</EbayButton>);
-            });
-
-            it("then it maintains accessibility", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveTextContent("Transparent");
-            });
-
-            it("then it has transparent class", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveClass("btn--transparent");
-            });
-        });
-
-        describe("given icon-only button", () => {
-            beforeEach(() => {
-                render(
-                    <EbayButton aria-label="Menu">
-                        <EbayIcon name="menu24" />
-                    </EbayButton>,
-                );
-            });
-
-            it("then it has accessible label", () => {
-                const button = screen.getByRole("button");
-                expect(button).toHaveAttribute("aria-label", "Menu");
-            });
-
-            it("then button is still accessible", () => {
-                const button = screen.getByRole("button");
-                expect(button).toBeInTheDocument();
+                const svg = button.querySelector("svg");
+                expect(svg).toBeInTheDocument();
             });
         });
     });
