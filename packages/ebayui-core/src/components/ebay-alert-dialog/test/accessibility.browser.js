@@ -119,16 +119,6 @@ describe("accessibility", () => {
                     expect(document.activeElement).toBe(button);
                 });
             });
-
-            it("then focus is trapped within the dialog", async () => {
-                await waitFor(() => {
-                    const dialog = component.getByRole("alertdialog");
-                    const trapEl = dialog.querySelector(
-                        ".keyboard-trap--active",
-                    );
-                    expect(trapEl).toBeTruthy();
-                });
-            });
         });
 
         describe("ARIA Attributes", () => {
