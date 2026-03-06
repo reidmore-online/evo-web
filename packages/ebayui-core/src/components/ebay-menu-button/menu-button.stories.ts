@@ -21,6 +21,9 @@ import FooterTemplateCode from "./examples/footer.marko?raw";
 import Component from "./index.marko";
 import { Story } from "@storybook/marko";
 import type { Input } from "./component";
+import { within } from "@testing-library/dom";
+import userEvent from "@testing-library/user-event";
+import { playDefault } from "../../../../../src/storybook-tests/menu-button-interactions.ts";
 
 const Template: Story<Input> = (args: Input) => ({
     input: addRenderBodies(args),
@@ -287,6 +290,37 @@ Default.parameters = {
             code: tagToString("ebay-menu-button", Default.args),
         },
     },
+};
+
+Default.play = playDefault();
+
+export const Disabled = Template.bind({});
+Disabled.args = {
+    ...Default.args,
+    disabled: true,
+};
+Disabled.parameters = {
+    docs: {
+        source: {
+            code: tagToString("ebay-menu-button", Disabled.args),
+        },
+    },
+};
+Disabled.play = async ({
+    canvasElement,
+    step,
+}: {
+    canvasElement: HTMLElement;
+    step: (name: string, fn: () => Promise<void>) => Promise<void>;
+}) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole("button");
+    const user = userEvent.setup();
+
+    await step("Test disabled button does not expand on click", async () => {
+        await user.click(button);
+        expect(button).toHaveAttribute("aria-expanded", "false");
+    });
 };
 
 export const IconText = buildExtensionTemplate(IconTemplate, IconTemplateCode);

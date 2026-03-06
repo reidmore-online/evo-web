@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, it, expect } from "vitest";
 import { composeStories } from "@storybook/marko";
 import { render, fireEvent, cleanup } from "@marko/testing-library";
+import { userEvent } from "vitest/browser";
 import { pressKey } from "../../../common/test-utils/browser";
 import * as stories from "../menu-button.stories"; // import all stories from the stories file
 import { addRenderBodies } from "../../../common/storybook/utils";
@@ -9,10 +10,11 @@ const { Default } = composeStories(stories);
 
 const items = [...Default.args.item];
 
-afterEach(cleanup);
-
 /** @type import("@marko/testing-library").RenderResult */
 let component;
+
+/** @type { import("vitest/browser").UserEvent } */
+let user;
 
 function getExpandedInput(expanded) {
     return Object.assign({}, Default.args, {
@@ -20,6 +22,17 @@ function getExpandedInput(expanded) {
         expanded,
     });
 }
+
+beforeEach(() => {
+    user = userEvent.setup();
+});
+
+afterEach(() => {
+    if (user?.cleanup) {
+        user.cleanup();
+    }
+    cleanup();
+});
 
 describe("given the menu is in the default state", () => {
     beforeEach(async () => {
@@ -120,6 +133,29 @@ describe("given the menu is in the default state", () => {
 
         it("then it emits the expand event", () => {
             expect(component.emitted("expand")).has.length(1);
+        });
+    });
+
+    describe("when the button is disabled", () => {
+        beforeEach(async () => {
+            await component.rerender(
+                Object.assign({}, Default.args, {
+                    item: addRenderBodies([...items]),
+                    disabled: true,
+                }),
+            );
+            await fireEvent.click(component.getByRole("button"));
+        });
+
+        it("then it does not expand", () => {
+            expect(component.getByRole("button")).toHaveAttribute(
+                "aria-expanded",
+                "false",
+            );
+        });
+
+        it("then it does not emit expand event", () => {
+            expect(component.emitted("expand")).has.length(0);
         });
     });
 });
@@ -375,6 +411,289 @@ describe("given the menu is in the expanded state with checkbox items", () => {
 
         it("then the item is unchecked", () => {
             expect(firstItem).toHaveAttribute("aria-checked", "false");
+        });
+    });
+});
+
+describe("Keyboard interactions", () => {
+    beforeEach(async () => {
+        component = await render(Default);
+    });
+
+    describe("when Enter key is pressed on the button", () => {
+        beforeEach(async () => {
+            const button = component.getByRole("button");
+            button.focus();
+            await user.keyboard("{Enter}");
+        });
+
+        it("then it expands", () => {
+            expect(component.getByRole("button")).toHaveAttribute(
+                "aria-expanded",
+                "true",
+            );
+        });
+
+        it("then it emits the expand event", () => {
+            expect(component.emitted("expand")).has.length(1);
+        });
+    });
+
+    describe("when Space key is pressed on the button", () => {
+        beforeEach(async () => {
+            const button = component.getByRole("button");
+            button.focus();
+            await user.keyboard(" ");
+        });
+
+        it("then it expands", () => {
+            expect(component.getByRole("button")).toHaveAttribute(
+                "aria-expanded",
+                "true",
+            );
+        });
+
+        it("then it emits the expand event", () => {
+            expect(component.emitted("expand")).has.length(1);
+        });
+    });
+
+    describe("when menu is expanded via Enter and focus is on first item", () => {
+        let firstItem;
+        beforeEach(async () => {
+            const button = component.getByRole("button");
+            button.focus();
+            await user.keyboard("{Enter}");
+            firstItem = component.getAllByRole("menuitem", { hidden: true })[0];
+        });
+
+        it("then focus moves to the first menu item", () => {
+            expect(document.activeElement).toBe(firstItem);
+        });
+    });
+
+    describe("when menu is expanded and Down Arrow is pressed from first item", () => {
+        let firstItem, secondItem;
+        beforeEach(async () => {
+            const button = component.getByRole("button");
+            button.focus();
+            await user.keyboard("{Enter}");
+            firstItem = component.getAllByRole("menuitem", { hidden: true })[0];
+            secondItem = component.getAllByRole("menuitem", {
+                hidden: true,
+            })[1];
+            await user.keyboard("{ArrowDown}");
+        });
+
+        it("then focus moves to the second menu item", () => {
+            expect(document.activeElement).toBe(secondItem);
+        });
+    });
+
+    describe("when menu is expanded and Enter is pressed on focused item", () => {
+        const firstItemText = Default.args.item[0].renderBody;
+        beforeEach(async () => {
+            const button = component.getByRole("button");
+            button.focus();
+            await user.keyboard("{Enter}");
+            await user.keyboard("{Enter}");
+        });
+
+        it("then it emits the select event", () => {
+            const selectEvents = component.emitted("select");
+            expect(selectEvents).has.length(1);
+            const [[eventArg]] = selectEvents;
+            expect(eventArg)
+                .has.property("el")
+                .toHaveTextContent(firstItemText);
+        });
+
+        it("then it collapses", () => {
+            expect(component.getByRole("button")).toHaveAttribute(
+                "aria-expanded",
+                "false",
+            );
+        });
+    });
+
+    describe("when menu is expanded and Space is pressed on focused item", () => {
+        const firstItemText = Default.args.item[0].renderBody;
+        beforeEach(async () => {
+            const button = component.getByRole("button");
+            button.focus();
+            await user.keyboard("{Enter}");
+            await user.keyboard(" ");
+        });
+
+        it("then it emits the select event", () => {
+            const selectEvents = component.emitted("select");
+            expect(selectEvents).has.length(1);
+            const [[eventArg]] = selectEvents;
+            expect(eventArg)
+                .has.property("el")
+                .toHaveTextContent(firstItemText);
+        });
+
+        it("then it collapses", () => {
+            expect(component.getByRole("button")).toHaveAttribute(
+                "aria-expanded",
+                "false",
+            );
+        });
+    });
+
+    describe("when menu is expanded and Tab is pressed from button", () => {
+        beforeEach(async () => {
+            const button = component.getByRole("button");
+            button.focus();
+            await user.keyboard("{Enter}");
+            await user.keyboard("{Tab}");
+        });
+
+        it("then it collapses", () => {
+            expect(component.getByRole("button")).toHaveAttribute(
+                "aria-expanded",
+                "false",
+            );
+        });
+
+        it("then focus leaves the widget", () => {
+            const button = component.getByRole("button");
+            const menu = component.getByRole("menu", { hidden: true });
+            expect(document.activeElement).not.toBe(button);
+            expect(document.activeElement).not.toBe(menu);
+        });
+    });
+});
+
+describe("Focus management", () => {
+    beforeEach(async () => {
+        component = await render(Default);
+    });
+
+    describe("when the button receives focus", () => {
+        beforeEach(() => {
+            const button = component.getByRole("button");
+            button.focus();
+        });
+
+        it("then the button has focus", () => {
+            expect(document.activeElement).toBe(component.getByRole("button"));
+        });
+    });
+
+    describe("when the menu is opened", () => {
+        let firstItem;
+        beforeEach(async () => {
+            const button = component.getByRole("button");
+            await user.click(button);
+            firstItem = component.getAllByRole("menuitem", { hidden: true })[0];
+        });
+
+        it("then focus moves to the first menu item", () => {
+            expect(document.activeElement).toBe(firstItem);
+        });
+    });
+
+    describe("when Escape is pressed from an item", () => {
+        beforeEach(async () => {
+            const button = component.getByRole("button");
+            await user.click(button);
+            await user.keyboard("{Escape}");
+        });
+
+        it("then focus returns to the button", () => {
+            expect(document.activeElement).toBe(component.getByRole("button"));
+        });
+    });
+});
+
+describe("ARIA attributes", () => {
+    describe("given the menu is collapsed", () => {
+        beforeEach(async () => {
+            component = await render(Default);
+        });
+
+        it("then the button has aria-haspopup", () => {
+            expect(component.getByRole("button")).toHaveAttribute(
+                "aria-haspopup",
+                "true",
+            );
+        });
+
+        it("then the button has aria-expanded false", () => {
+            expect(component.getByRole("button")).toHaveAttribute(
+                "aria-expanded",
+                "false",
+            );
+        });
+
+        it("then the button has aria-controls pointing to an element in the document", () => {
+            const button = component.getByRole("button");
+            const controlsId = button.getAttribute("aria-controls");
+            expect(controlsId).toBeTruthy();
+            const controlled = component.container.querySelector(
+                `#${controlsId}`,
+            );
+            expect(controlled).toBeTruthy();
+        });
+
+        it("then the menu has role menu", () => {
+            expect(component.getByRole("menu", { hidden: true })).toBeTruthy();
+        });
+    });
+
+    describe("given the menu is expanded", () => {
+        beforeEach(async () => {
+            component = await render(Default);
+            await fireEvent.click(component.getByRole("button"));
+        });
+
+        it("then the button has aria-expanded true", () => {
+            expect(component.getByRole("button")).toHaveAttribute(
+                "aria-expanded",
+                "true",
+            );
+        });
+    });
+
+    describe("given the menu has radio items", () => {
+        beforeEach(async () => {
+            component = await render(Default, { type: "radio" });
+        });
+
+        it("then items have role menuitemradio", () => {
+            const radioItems = component.getAllByRole("menuitemradio", {
+                hidden: true,
+            });
+            expect(radioItems.length).toBeGreaterThan(0);
+        });
+
+        it("then items have aria-checked", () => {
+            const firstItem = component.getAllByRole("menuitemradio", {
+                hidden: true,
+            })[0];
+            expect(firstItem).toHaveAttribute("aria-checked");
+        });
+    });
+
+    describe("given the menu has checkbox items", () => {
+        beforeEach(async () => {
+            component = await render(Default, { type: "checkbox" });
+        });
+
+        it("then items have role menuitemcheckbox", () => {
+            const checkboxItems = component.getAllByRole("menuitemcheckbox", {
+                hidden: true,
+            });
+            expect(checkboxItems.length).toBeGreaterThan(0);
+        });
+
+        it("then items have aria-checked", () => {
+            const firstItem = component.getAllByRole("menuitemcheckbox", {
+                hidden: true,
+            })[0];
+            expect(firstItem).toHaveAttribute("aria-checked");
         });
     });
 });

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { action } from "storybook/actions";
+import { within } from "@storybook/testing-library";
+import { userEvent } from "@storybook/testing-library";
 import { EbayIconSettings16 } from "../../ebay-icon/icons/ebay-icon-settings-16";
 import {
     EbayMenuButton,
@@ -7,6 +9,8 @@ import {
     EbayMenuButtonSeparator as Separator,
     EbayMenuButtonLabel,
 } from "../index";
+import { expect } from "storybook/test";
+import { playDefault } from "../../../../../src/storybook-tests/menu-button-interactions.ts";
 
 export default {
     title: "buttons/ebay-menu-button",
@@ -29,6 +33,8 @@ export const Default = () => (
     </>
 );
 
+Default.play = playDefault();
+
 export const Expanded = () => (
     <>
         <EbayMenuButton expanded text="eBay Menu">
@@ -39,7 +45,7 @@ export const Expanded = () => (
     </>
 );
 
-export const Disabled = () => (
+const DisabledRender = () => (
     <>
         <EbayMenuButton text="eBay Menu" disabled>
             <Item>item 1 that has very long text</Item>
@@ -48,6 +54,26 @@ export const Disabled = () => (
         </EbayMenuButton>
     </>
 );
+
+export const Disabled = {
+    render: DisabledRender,
+    play: async ({
+        canvasElement,
+        step,
+    }: {
+        canvasElement: HTMLElement;
+        step: (name: string, fn: () => Promise<void>) => Promise<void>;
+    }) => {
+        const canvas = within(canvasElement);
+        const button = canvas.getByRole("button", { name: /eBay Menu/i });
+        const user = userEvent.setup();
+
+        await step("Test disabled button does not expand on click", async () => {
+            await user.click(button);
+            expect(button).toHaveAttribute("aria-expanded", "false");
+        });
+    },
+};
 
 export const WithIcon = {
     render: () => (
