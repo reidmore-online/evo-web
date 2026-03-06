@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { StoryFn, Meta } from "@storybook/react-vite";
+import { expect, userEvent, within } from "@storybook/test";
 import { action } from "storybook/actions";
 import { EbayAlertDialog } from "../index";
 import { EbayDialogHeader } from "../../ebay-dialog-base";
@@ -47,6 +48,49 @@ export const Default: StoryFn<typeof EbayAlertDialog> = () => {
             </EbayAlertDialog>
         </div>
     );
+};
+
+Default.play = async ({
+    canvasElement,
+    step,
+}: {
+    canvasElement: HTMLElement;
+    step: (name: string, fn: () => Promise<void>) => Promise<void>;
+}) => {
+    const canvas = within(canvasElement);
+
+    await step("Verify dialog is visible and confirm button has focus", async () => {
+        const dialog = canvas.getByRole("alertdialog");
+        await expect(dialog).toBeInTheDocument();
+        const confirmButton = canvas.getByRole("button", { name: "Confirm" });
+        await expect(confirmButton).toHaveFocus();
+    });
+
+    await step("Click mask does not close the dialog", async () => {
+        const dialog = canvas.getByRole("alertdialog");
+        await userEvent.click(dialog);
+        await expect(dialog).toBeInTheDocument();
+    });
+
+    await step("Enter key on confirm button closes dialog", async () => {
+        const confirmButton = canvas.getByRole("button", { name: "Confirm" });
+        confirmButton.focus();
+        await userEvent.keyboard("{Enter}");
+        await expect(confirmButton).not.toBeInTheDocument();
+    });
+
+    await step("Re-open dialog and Space key on confirm closes dialog", async () => {
+        await userEvent.click(canvas.getByRole("button", { name: "Open Dialog" }));
+        const confirmButton = await canvas.findByRole("button", { name: "Confirm" });
+        await expect(confirmButton).toHaveFocus();
+        await userEvent.keyboard(" ");
+        expect(canvas.queryByRole("alertdialog")).toBeNull();
+    });
+
+    await step("Focus is returned to the button that opened the dialog", async () => {
+        const button = canvas.getByRole("button", { name: "Open Dialog" });
+        await expect(button).toHaveFocus();
+    });
 };
 
 export const WithAnimation: StoryFn<typeof EbayAlertDialog> = () => {

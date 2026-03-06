@@ -52,7 +52,7 @@ export default defineConfig({
                             browser: "chromium",
                         }]
                     },
-                    include: ["src/**/test.browser.{ts,js}"],
+                    include: ["src/**/**.browser.{ts,js}"],
                     setupFiles: ["./test.setup.ts"]
                 },
             },
