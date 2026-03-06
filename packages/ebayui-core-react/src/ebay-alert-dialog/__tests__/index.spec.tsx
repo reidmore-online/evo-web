@@ -1,31 +1,124 @@
 import React from "react";
 import { vi } from "vitest";
-import { screen, fireEvent, render } from "@testing-library/react";
+import { screen, render } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { EbayAlertDialog } from "../index";
+import { EbayDialogHeader } from "../../ebay-dialog-base";
 
 vi.mock("../../common/random-id");
 
-const closeSpy = vi.fn();
-const openSpy = vi.fn();
+const onConfirmSpy = vi.fn();
+const onOpenSpy = vi.fn();
+const onCloseSpy = vi.fn();
 
-describe("<EbayAlertDialog>", () => {
+function renderOpenDialog() {
+    return render(
+        <EbayAlertDialog
+            open
+            confirmText="OK"
+            onOpen={onOpenSpy}
+            onConfirm={onConfirmSpy}
+            onClose={onCloseSpy}
+            a11yCloseText="Close Dialog"
+        >
+            <EbayDialogHeader>Alert Title</EbayDialogHeader>
+            <p>You must acknowledge this alert to continue.</p>
+        </EbayAlertDialog>,
+    );
+}
+
+describe("EbayAlertDialog accessibility", () => {
     beforeEach(() => {
-        render(
-            <EbayAlertDialog confirmText="Confirm" open onOpen={openSpy} onConfirm={closeSpy} a11yCloseText="Close">
-                <p>Lorem ipsum dolor</p>
-            </EbayAlertDialog>,
-        );
-    });
-    it("should trigger onOpen when dialog appears", () => {
-        expect(openSpy).toHaveBeenCalled();
+        vi.clearAllMocks();
     });
 
-    it("should have close button", () => {
-        expect(screen.getByText("Confirm")).toBeInTheDocument();
-    });
+    describe("given an open alert dialog", () => {
+        beforeEach(() => {
+            renderOpenDialog();
+        });
 
-    it("should trigger onClose when close button is clicked", () => {
-        fireEvent.click(screen.getByText("Confirm"));
-        expect(closeSpy).toHaveBeenCalled();
+        describe("Rendering", () => {
+            it("should trigger onOpen when dialog appears", () => {
+                expect(onOpenSpy).toHaveBeenCalled();
+            });
+        
+
+            it("should have close button", () => {
+                expect(screen.getByText("OK")).toBeInTheDocument();
+            });
+        });
+
+        describe("Click Interactions", () => {
+            it("when confirm button is clicked then onConfirm is called", async () => {
+                const button = screen.getByRole("button", { name: "OK" });
+                await userEvent.click(button);
+                expect(onConfirmSpy).toHaveBeenCalledTimes(1);
+            });
+        });
+
+        describe("Keyboard Interactions", () => {
+            it("when Enter key is pressed on confirm button then onConfirm is called", async () => {
+                const user = userEvent.setup();
+                const button = screen.getByRole("button", { name: "OK" });
+                button.focus();
+                await user.keyboard("{Enter}");
+                expect(onConfirmSpy).toHaveBeenCalledTimes(1);
+            });
+
+            it("when Space key is pressed on confirm button then onConfirm is called", async () => {
+                const user = userEvent.setup();
+                const button = screen.getByRole("button", { name: "OK" });
+                button.focus();
+                await user.keyboard(" ");
+                expect(onConfirmSpy).toHaveBeenCalledTimes(1);
+            });
+
+            it("when Escape key is pressed then dialog does not close and onClose is not called", async () => {
+                const user = userEvent.setup();
+                const button = screen.getByRole("button", { name: "OK" });
+                button.focus();
+                await user.keyboard("{Escape}");
+                expect(onCloseSpy).not.toHaveBeenCalled();
+                expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+            });
+        });
+
+        //TODO: This test fails due to JSDOM not supporting transitioned events, need to look at a fix.
+        describe.skip("Focus Management", () => {
+            it("then initial focus is on the confirm button", async () => {
+                const button = screen.getByRole("button", { name: "OK" });
+                expect(button).toHaveFocus();
+            });
+        });
+
+        describe("ARIA Attributes", () => {
+            it("then dialog has role alertdialog", () => {
+                const dialog = screen.getByRole("alertdialog");
+                expect(dialog).toHaveAttribute("role", "alertdialog");
+            });
+
+            it("then dialog has aria-modal true", () => {
+                const dialog = screen.getByRole("alertdialog");
+                expect(dialog).toHaveAttribute("aria-modal", "true");
+            });
+
+            it("then dialog has aria-labelledby referencing the header", () => {
+                const dialog = screen.getByRole("alertdialog");
+                const labelledBy = dialog.getAttribute("aria-labelledby");
+                expect(labelledBy).toBeTruthy();
+                const labelEl = document.getElementById(labelledBy!);
+                expect(labelEl).toBeTruthy();
+                expect(labelEl?.textContent).toContain("Alert Title");
+            });
+
+            it("then confirm button has aria-describedby referencing main content", () => {
+                const button = screen.getByRole("button", { name: "OK" });
+                const describedBy = button.getAttribute("aria-describedby");
+                expect(describedBy).toBe("alert-dialog-main");
+                const mainEl = document.getElementById(describedBy!);
+                expect(mainEl).toBeTruthy();
+                expect(mainEl?.textContent).toContain("You must acknowledge this alert to continue.");
+            });
+        });
     });
 });

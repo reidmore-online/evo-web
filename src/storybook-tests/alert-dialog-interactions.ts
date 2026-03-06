@@ -1,4 +1,4 @@
-import { expect, within, userEvent, waitFor } from "@storybook/test";
+import { expect, within, userEvent, waitFor } from "storybook/test";
 
 export const playDefault = (additionalTests) => async ({ canvasElement, step }: { canvasElement: HTMLElement; step: (name: string, fn: () => Promise<void>) => Promise<void>; }) => {
 
@@ -18,10 +18,11 @@ export const playDefault = (additionalTests) => async ({ canvasElement, step }: 
             expect(confirmButton).toHaveFocus();
         });
     });
-
-    await step("Click mask does not close the dialog", async () => {
+// unsure if this is actually clicking the mask, test with other dialog components
+    await step("Click mask does not close the dialog", async () => { 
         const dialog = canvas.getByRole("alertdialog");
-        await userEvent.click(dialog); // fix target for click
+        const parent = canvas.parentElement;
+        await userEvent.pointer({ target: parent, coords: { x: 1, y: 1 } });
         await expect(dialog).toBeInTheDocument();
         await expect(dialog).not.toHaveAttribute("hidden");
     });

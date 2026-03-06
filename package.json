@@ -75,7 +75,6 @@
     "@storybook/marko-vite": "^4.1.0",
     "@storybook/mdx2-csf": "^1.1.0",
     "@storybook/react-vite": "^10",
-    "@storybook/test": "^8.6.15",
     "@storybook/web-components-vite": "^10.1.11",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16",
