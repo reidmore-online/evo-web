@@ -27,7 +27,7 @@ function renderOpenDialog() {
     );
 }
 
-describe("EbayAlertDialog accessibility", () => {
+describe("EbayAlertDialog", () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
@@ -41,7 +41,6 @@ describe("EbayAlertDialog accessibility", () => {
             it("should trigger onOpen when dialog appears", () => {
                 expect(onOpenSpy).toHaveBeenCalled();
             });
-        
 
             it("should have close button", () => {
                 expect(screen.getByText("OK")).toBeInTheDocument();

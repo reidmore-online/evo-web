@@ -4,7 +4,7 @@ import { action } from "storybook/actions";
 import { EbayAlertDialog } from "../index";
 import { EbayDialogHeader } from "../../ebay-dialog-base";
 import { EbayButton } from "../../ebay-button";
-import { playDefault } from "../../../../../src/storybook-tests/alert-dialog-interactions.ts";
+import { playDefault } from "../../../../storybook-tests/alert-dialog-interactions";
 
 const story = {
     component: EbayAlertDialog,
