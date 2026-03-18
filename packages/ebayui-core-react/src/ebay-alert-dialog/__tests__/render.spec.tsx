@@ -1,13 +1,16 @@
 import React from "react";
 import { screen, render } from "@testing-library/react";
 import { composeStories } from "@storybook/react-vite";
+import { userEvent } from "@testing-library/user-event";
 import * as stories from "./index.stories";
 
 const { Default, WithCustomConfirmButton } = composeStories(stories);
 
 describe("EbayAlertDialog rendering", () => {
-    it("should render the default story correctly", () => {
+    it("should render the default story correctly", async () => {
+        const user = userEvent.setup();
         render(<Default />);
+        await user.click(screen.getByRole("button", { name: "Open Alert Dialog" }));
         expect(screen.getByRole("alertdialog")).toBeInTheDocument();
         expect(screen.getByRole("heading", { level: 2 })).toBeInTheDocument();
         expect(screen.getByText(/Lorem ipsum dolor sit amet/)).toBeInTheDocument();

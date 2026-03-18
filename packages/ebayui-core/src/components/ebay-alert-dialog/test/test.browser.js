@@ -8,7 +8,7 @@ import {
     expect,
 } from "vitest";
 import { render, fireEvent, waitFor, cleanup } from "@marko/testing-library";
-import { userEvent } from "@testing-library/user-event";
+import { userEvent } from "vitest/browser";
 import { composeStories } from "@storybook/marko";
 import { fastAnimations } from "../../../common/test-utils/browser";
 import * as stories from "../alert-dialog.stories";
@@ -23,166 +23,140 @@ afterEach(cleanup);
 let component;
 let user;
 
-describe("given a closed dialog", () => {
-    beforeEach(async () => {
-        component = await render(Default);
-    });
-
-    it("then it is hidden in the DOM", () => {
-        expect(
-            component.getByRole("alertdialog", { hidden: true }),
-        ).toHaveAttribute("hidden");
-    });
-
-    describe("then it is opened", () => {
+describe("<ebay-alert-dialog>", () => {
+    describe("given a closed dialog", () => {
         beforeEach(async () => {
-            await component.rerender(
-                Object.assign({}, addRenderBodies(Default.args), {
-                    open: true,
-                }),
+            component = await render(Default);
+        });
+
+        it("then it should be hidden in the DOM", () => {
+            expect(
+                component.getByRole("alertdialog", { hidden: true }),
+            ).toHaveAttribute("hidden");
+        });
+
+        describe("when the dialog is opened via prop change", () => {
+            it("then it should emit the open event", async () => {
+                await component.rerender(
+                    Object.assign({}, addRenderBodies(Default.args), {
+                        open: true,
+                    }),
+                );
+                await waitFor(() =>
+                    expect(component.emitted("open")).has.length(1),
+                );
+            });
+        });
+    });
+
+    describe("given an open dialog", () => {
+        let sibling;
+
+        beforeEach(async () => {
+            user = userEvent.setup();
+            sibling = document.body.appendChild(
+                document.createElement("button"),
+            );
+            sibling.textContent = "Trigger";
+            sibling.focus();
+            component = await render(Default, {
+                ...addRenderBodies(Default.args),
+                open: true,
+            });
+        });
+
+        afterEach(() => {
+            if (sibling?.parentNode) {
+                document.body.removeChild(sibling);
+            }
+        });
+
+        it("then it should be visible in the DOM", () => {
+            expect(component.getByRole("alertdialog")).not.toHaveAttribute(
+                "hidden",
             );
         });
 
-        it("then it is visible in the DOM", async () => {
-            await waitFor(() =>
-                expect(component.emitted("open")).has.length(1),
-            );
-        });
-    });
-});
-
-describe("given an open dialog", () => {
-    let sibling;
-
-    beforeEach(async () => {
-        user = userEvent.setup();
-        sibling = document.body.appendChild(
-            document.createElement("button"),
-        );
-        sibling.textContent = "Trigger";
-        sibling.focus();
-        component = await render(Default, {
-            ...addRenderBodies(Default.args),
-            open: true,
-        });
-    });
-
-    afterEach(() => {
-        if (sibling?.parentNode) {
-            document.body.removeChild(sibling);
-        }
-    });
-
-    it("then it is visible in the DOM", () => {
-        expect(component.getByRole("alertdialog")).not.toHaveAttribute(
-            "hidden",
-        );
-    });
-
-    describe("Click Interactions", () => {
         describe("when the confirm button is clicked", () => {
-            beforeEach(async () => {
+            it("then it should emit the confirm event", async () => {
                 await fireEvent.click(
                     component.getByRole("button", { name: "OK" }),
                 );
-            });
-
-            it("then it emits confirm event", () => {
                 expect(component.emitted("confirm")).has.length(1);
             });
         });
-    });
 
-    describe("Keyboard Interactions", () => {
-        describe("when Enter key is pressed on confirm button", () => {
-            beforeEach(async () => {
-                const button = component.getByRole("button", {
-                    name: "OK",
-                });
+        describe("when Enter key is pressed on the confirm button", () => {
+            it("then it should emit the confirm event", async () => {
+                const button = component.getByRole("button", { name: "OK" });
                 button.focus();
                 await user.keyboard("{Enter}");
-            });
-
-            it("then it emits confirm event", () => {
                 expect(component.emitted("confirm")).has.length(1);
             });
         });
 
-        describe("when Space key is pressed on confirm button", () => {
-            beforeEach(async () => {
-                const button = component.getByRole("button", {
-                    name: "OK",
-                });
+        describe("when Space key is pressed on the confirm button", () => {
+            it("then it should emit the confirm event", async () => {
+                const button = component.getByRole("button", { name: "OK" });
                 button.focus();
                 await user.keyboard(" ");
-            });
-
-            it("then it emits confirm event", () => {
                 expect(component.emitted("confirm")).has.length(1);
             });
         });
 
         describe("when Escape key is pressed", () => {
-            beforeEach(async () => {
-                const button = component.getByRole("button", {
-                    name: "OK",
-                });
+            it("then it should not close the dialog", async () => {
+                const button = component.getByRole("button", { name: "OK" });
                 button.focus();
                 await user.keyboard("{Escape}");
-            });
-
-            it("then dialog remains open", () => {
-                expect(
-                    component.getByRole("alertdialog"),
-                ).not.toHaveAttribute("hidden");
-            });
-
-            it("then it does not emit close event", () => {
+                expect(component.getByRole("alertdialog")).not.toHaveAttribute(
+                    "hidden",
+                );
                 expect(component.emitted("close")).has.length(0);
             });
         });
-    });
 
-    describe("Focus Management", () => {
-        it("then initial focus is on the confirm button", async () => {
-            await waitFor(() => {
-                const button = component.getByRole("button", {
-                    name: "OK",
+        describe("accessibility", () => {
+            describe("when the dialog opens", () => {
+                it("then it should focus on the confirm button", async () => {
+                    await waitFor(() => {
+                        const button = component.getByRole("button", {
+                            name: "OK",
+                        });
+                        expect(document.activeElement).toBe(button);
+                    });
                 });
-                expect(document.activeElement).toBe(button);
             });
-        });
-    });
 
-    describe("ARIA Attributes", () => {
-        it("then dialog has role alertdialog", () => {
-            const dialog = component.getByRole("alertdialog");
-            expect(dialog).toHaveAttribute("role", "alertdialog");
-        });
+            it("then it should have role alertdialog", () => {
+                const dialog = component.getByRole("alertdialog");
+                expect(dialog).toHaveAttribute("role", "alertdialog");
+            });
 
-        it("then dialog has aria-modal true", () => {
-            const dialog = component.getByRole("alertdialog");
-            expect(dialog).toHaveAttribute("aria-modal", "true");
-        });
+            it("then it should have aria-modal set to true", () => {
+                const dialog = component.getByRole("alertdialog");
+                expect(dialog).toHaveAttribute("aria-modal", "true");
+            });
 
-        it("then dialog has aria-labelledby referencing the header", () => {
-            const dialog = component.getByRole("alertdialog");
-            const labelledBy = dialog.getAttribute("aria-labelledby");
-            expect(labelledBy).toBeTruthy();
-            const labelEl = document.getElementById(labelledBy);
-            expect(labelEl).toBeTruthy();
-            expect(labelEl?.textContent).toContain("Alert!");
-        });
+            it("then it should have aria-labelledby referencing the header", () => {
+                const dialog = component.getByRole("alertdialog");
+                const labelledBy = dialog.getAttribute("aria-labelledby");
+                expect(labelledBy).toBeTruthy();
+                const labelEl = document.getElementById(labelledBy);
+                expect(labelEl).toBeTruthy();
+                expect(labelEl?.textContent).toContain("Alert!");
+            });
 
-        it("then confirm button has aria-describedby referencing main content", () => {
-            const button = component.getByRole("button", { name: "OK" });
-            const describedBy = button.getAttribute("aria-describedby");
-            expect(describedBy).toBeTruthy();
-            const mainEl = document.getElementById(describedBy);
-            expect(mainEl).toBeTruthy();
-            expect(mainEl?.textContent).toContain(
-                "You must acknowledge this alert to continue.",
-            );
+            it("then it should have aria-describedby on the confirm button referencing main content", () => {
+                const button = component.getByRole("button", { name: "OK" });
+                const describedBy = button.getAttribute("aria-describedby");
+                expect(describedBy).toBeTruthy();
+                const mainEl = document.getElementById(describedBy);
+                expect(mainEl).toBeTruthy();
+                expect(mainEl?.textContent).toContain(
+                    "You must acknowledge this alert to continue.",
+                );
+            });
         });
     });
 });

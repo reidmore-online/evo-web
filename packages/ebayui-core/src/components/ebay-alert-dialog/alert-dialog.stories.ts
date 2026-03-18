@@ -4,7 +4,7 @@ import Readme from "./README.md";
 import Component from "./examples/default.marko";
 import type { Input } from "./index.marko";
 import code from "./examples/default.marko?raw";
-import { playDefault } from "../../../../../src/storybook-tests/alert-dialog-interactions.ts";
+import { playAlertDialogInteraction } from "../../../../../src/storybook-tests/alert-dialog-interactions.ts";
 
 const Template: Story<Input> = (args: Input) => ({
     input: addRenderBodies(args),
@@ -85,8 +85,7 @@ export default {
     },
 };
 
-export const Default = Template.bind({});
-Default.args = {
+const defaultArgs = {
     header: {
         renderBody: `Alert!`,
     },
@@ -95,7 +94,8 @@ Default.args = {
     },
     renderBody: `You must acknowledge this alert to continue.`,
 } as any;
-Default.parameters = {
+
+const defaultParameters = {
     docs: {
         source: {
             code,
@@ -103,4 +103,11 @@ Default.parameters = {
     },
 };
 
-Default.play = playDefault();
+export const Default = Template.bind({});
+Default.args = defaultArgs;
+Default.parameters = defaultParameters;
+
+export const WithInteraction = Template.bind({});
+WithInteraction.args = defaultArgs;
+WithInteraction.parameters = defaultParameters;
+WithInteraction.play = playAlertDialogInteraction();

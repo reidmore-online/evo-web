@@ -27,52 +27,51 @@ function renderOpenDialog() {
     );
 }
 
-describe("EbayAlertDialog", () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
-
-    describe("given an open alert dialog", () => {
+describe("<ebay-alert-dialog>", () => {
+    describe("given an open dialog", () => {
         beforeEach(() => {
+            vi.clearAllMocks();
             renderOpenDialog();
         });
 
-        describe("Rendering", () => {
-            it("should trigger onOpen when dialog appears", () => {
-                expect(onOpenSpy).toHaveBeenCalled();
-            });
-
-            it("should have close button", () => {
-                expect(screen.getByText("OK")).toBeInTheDocument();
-            });
+        it("then it should emit the open event", () => {
+            expect(onOpenSpy).toHaveBeenCalled();
         });
 
-        describe("Click Interactions", () => {
-            it("when confirm button is clicked then onConfirm is called", async () => {
+        it("then it should render the confirm button", () => {
+            expect(screen.getByText("OK")).toBeInTheDocument();
+        });
+
+        describe("when the confirm button is clicked", () => {
+            it("then it should call onConfirm", async () => {
                 const button = screen.getByRole("button", { name: "OK" });
                 await userEvent.click(button);
                 expect(onConfirmSpy).toHaveBeenCalledTimes(1);
             });
         });
 
-        describe("Keyboard Interactions", () => {
-            it("when Enter key is pressed on confirm button then onConfirm is called", async () => {
+        describe("when Enter key is pressed on the confirm button", () => {
+            it("then it should call onConfirm", async () => {
                 const user = userEvent.setup();
                 const button = screen.getByRole("button", { name: "OK" });
                 button.focus();
                 await user.keyboard("{Enter}");
                 expect(onConfirmSpy).toHaveBeenCalledTimes(1);
             });
+        });
 
-            it("when Space key is pressed on confirm button then onConfirm is called", async () => {
+        describe("when Space key is pressed on the confirm button", () => {
+            it("then it should call onConfirm", async () => {
                 const user = userEvent.setup();
                 const button = screen.getByRole("button", { name: "OK" });
                 button.focus();
                 await user.keyboard(" ");
                 expect(onConfirmSpy).toHaveBeenCalledTimes(1);
             });
+        });
 
-            it("when Escape key is pressed then dialog does not close and onClose is not called", async () => {
+        describe("when Escape key is pressed", () => {
+            it("then it should not close the dialog", async () => {
                 const user = userEvent.setup();
                 const button = screen.getByRole("button", { name: "OK" });
                 button.focus();
@@ -82,26 +81,23 @@ describe("EbayAlertDialog", () => {
             });
         });
 
-        //TODO: This test fails due to JSDOM not supporting transitioned events, need to look at a fix.
-        describe.skip("Focus Management", () => {
-            it("then initial focus is on the confirm button", async () => {
+        describe("accessibility", () => {
+            it.skip("when the dialog opens, then it should focus on the confirm button", async () => {
                 const button = screen.getByRole("button", { name: "OK" });
                 expect(button).toHaveFocus();
             });
-        });
 
-        describe("ARIA Attributes", () => {
-            it("then dialog has role alertdialog", () => {
+            it("then it should have role alertdialog", () => {
                 const dialog = screen.getByRole("alertdialog");
                 expect(dialog).toHaveAttribute("role", "alertdialog");
             });
 
-            it("then dialog has aria-modal true", () => {
+            it("then it should have aria-modal set to true", () => {
                 const dialog = screen.getByRole("alertdialog");
                 expect(dialog).toHaveAttribute("aria-modal", "true");
             });
 
-            it("then dialog has aria-labelledby referencing the header", () => {
+            it("then it should have aria-labelledby referencing the header", () => {
                 const dialog = screen.getByRole("alertdialog");
                 const labelledBy = dialog.getAttribute("aria-labelledby");
                 expect(labelledBy).toBeTruthy();
@@ -110,7 +106,7 @@ describe("EbayAlertDialog", () => {
                 expect(labelEl?.textContent).toContain("Alert Title");
             });
 
-            it("then confirm button has aria-describedby referencing main content", () => {
+            it("then it should have aria-describedby on the confirm button referencing main content", () => {
                 const button = screen.getByRole("button", { name: "OK" });
                 const describedBy = button.getAttribute("aria-describedby");
                 expect(describedBy).toBe("alert-dialog-main");
