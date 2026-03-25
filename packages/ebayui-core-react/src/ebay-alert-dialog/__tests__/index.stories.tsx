@@ -26,7 +26,7 @@ export const Default: StoryFn<typeof EbayAlertDialog> = () => {
     return (
         <div>
             <button className="btn btn--secondary" onClick={() => setOpen(!open)}>
-                Open Dialog
+                Open Alert Dialog
             </button>
             <p>Some outside content...</p>
             <EbayAlertDialog
@@ -36,7 +36,7 @@ export const Default: StoryFn<typeof EbayAlertDialog> = () => {
                     action("onConfirm")();
                     close();
                 }}
-                confirmText="Confirm"
+                confirmText="OK"
                 a11yCloseText="Close"
             >
                 <EbayDialogHeader>Heading</EbayDialogHeader>
