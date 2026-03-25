@@ -4,7 +4,6 @@ import { action } from "storybook/actions";
 import { EbayAlertDialog } from "../index";
 import { EbayDialogHeader } from "../../ebay-dialog-base";
 import { EbayButton } from "../../ebay-button";
-import { playAlertDialogInteraction } from "../../../../../src/storybook-tests/alert-dialog-interactions";
 
 const story = {
     component: EbayAlertDialog,
@@ -21,8 +20,8 @@ const textParagraph = (
     </p>
 );
 
-const DefaultAlertDialogStory: React.FC = () => {
-    const [open, setOpen] = useState(false);
+export const Default: StoryFn<typeof EbayAlertDialog> = () => {
+    const [open, setOpen] = useState(true);
     const close = () => setOpen(false);
     return (
         <div>
@@ -49,8 +48,6 @@ const DefaultAlertDialogStory: React.FC = () => {
         </div>
     );
 };
-
-export const Default: StoryFn<typeof EbayAlertDialog> = () => <DefaultAlertDialogStory />;
 
 export const WithAnimation: StoryFn<typeof EbayAlertDialog> = () => {
     const [open, setOpen] = useState(false);
@@ -105,8 +102,5 @@ export const WithCustomConfirmButton: StoryFn<typeof EbayAlertDialog> = () => {
         </div>
     );
 };
-
-export const WithInteraction: StoryFn<typeof EbayAlertDialog> = () => <DefaultAlertDialogStory />;
-WithInteraction.play = playAlertDialogInteraction();
 
 export default story;

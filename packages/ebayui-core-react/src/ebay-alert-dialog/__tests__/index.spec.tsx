@@ -27,7 +27,7 @@ function renderOpenDialog() {
     );
 }
 
-describe("<ebay-alert-dialog>", () => {
+describe("<EbayAlertDialog />", () => {
     describe("given an open dialog", () => {
         beforeEach(() => {
             vi.clearAllMocks();
