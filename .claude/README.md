@@ -142,6 +142,44 @@ wc -c CLAUDE.md  # Characters (target: <8,000)
 
 ---
 
+## Creating & Improving AI Skills
+
+Skills are created and iterated using the **skill-creator** plugin from Anthropic. It is installed **per-machine** (not checked into the repo) via Claude Code's plugin system or local project/global skill installation.
+
+### Install
+
+```
+/plugins
+```
+
+Follow the prompts to install `skill-creator` from the official registry. It installs to `~/.claude/plugins/cache/` and is registered in your personal `~/.claude/settings.json`.
+
+### Usage
+
+```
+/skill-creator
+```
+
+Invoke from within Claude Code. The skill-creator will guide you through:
+
+1. **Intent capture** — what the skill does, when it triggers, expected output
+2. **Research** — exploring the codebase to extract patterns and conventions
+3. **Drafting** — writing `SKILL.md` with instructions, examples, and "why" explanations
+4. **Testing** — running parallel test cases (with skill vs. baseline) to measure quality, speed, and token usage
+5. **Review** — HTML eval viewer for qualitative feedback per test case
+6. **Iteration** — improving the skill based on feedback, re-running tests
+7. **Packaging** — producing a `.skill` file for distribution
+
+### Conventions
+
+- Skills live in `.claude/skills/<skill-name>/SKILL.md`
+- Other non-Claude agents/models can invoke skills by referencing them by name and location
+- Keep skills under 500 lines; use bundled `references/` files for deeper content
+- Prefer TypeScript (`.ts`) over Python (when possible) for any bundled scripts
+- Skills complement `CLAUDE.md` — never duplicate content already there
+
+---
+
 ## Version History
 
 - **2026-02-25** - Initial optimization (97.25/100 score)

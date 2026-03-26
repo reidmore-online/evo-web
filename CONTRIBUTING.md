@@ -10,6 +10,24 @@ Currently each package has their own contributing guide.
 - [Ebayui-Core](./packages/ebayui-core/CONTRIBUTING.md)
 - [Ebayui-Core-React](./packages/ebayui-core-react/CONTRIBUTING.md)
 
+## AI-Assisted Development
+
+Evo Web uses [Claude Code](https://claude.ai/claude-code) for AI-assisted development. The repo includes a set of skills under `.claude/skills/` that give Claude domain expertise specific to this codebase.
+
+To create or improve skills, use the **skill-creator** plugin. Install it locally via Claude Code:
+
+```
+/plugins
+```
+
+Then invoke it to build a new skill:
+
+```
+/skill-creator
+```
+
+See [`.claude/README.md`](./.claude/README.md) for full details on the skills architecture, conventions, and how to contribute new skills.
+
 ## Releases
 
 For releases, evo-web uses changesets. For each commit that should be associated with a release, run `npm run change` in the root. Pick which package and what version (`major`, `minor`, `patch`) and check in the generated `.changeset` file.
