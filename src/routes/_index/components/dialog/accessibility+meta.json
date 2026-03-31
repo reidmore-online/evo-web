@@ -1,0 +1,4 @@
+{
+  "pageTitle": "Dialog Accessibility Guidelines — Building Native HTML Dialogs",
+  "pageDescription": "Learn how to make dialog components fully accessible using the native HTML <dialog> element with proper focus trapping, keyboard navigation, and ARIA roles. Follow these WCAG-aligned guidelines to ensure dialogs work for all users with assistive technologies."
+}

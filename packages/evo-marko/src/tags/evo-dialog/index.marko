@@ -1,0 +1,35 @@
+<!-- NOTE, this is not a full implementation but only here so the code is not lost -->
+<let/open = false>
+<let/visible = false>
+<script>
+  if (open) {
+    $dialog().showModal();
+    visible = true;
+  } else {
+    if (visible) {
+      $dialog().classList.add("dialog-close");
+      $dialog().addEventListener(
+        "animationend",
+        () => {
+          $dialog().close();
+          visible = false;
+          $dialog().classList.remove("dialog-close");
+        },
+        {
+          signal: $signal,
+          once: true,
+        },
+      );
+    }
+  }
+</script>
+
+<dialog/$dialog
+  class="dialog"
+  // closedby="any"
+  onCancel(e) {
+    e.preventDefault();
+    open = false;
+  }
+ ...input>
+</dialog>
