@@ -25,7 +25,7 @@
     "build": "mtc",
     "build:readme": "node scripts/add-ds-version",
     "build:storybook": "storybook build -o ./_site",
-    "deploy": "exit 0",
+    "deploy": "storybook build -o ./_site",
     "format": "eslint --fix; prettier . --write --log-level=warn",
     "importSVG": "tsx scripts/import-svg",
     "lint": "mtc && eslint && prettier . --check --log-level=warn",
@@ -56,7 +56,7 @@
     "shaka-player": "5.0.2"
   },
   "devDependencies": {
-    "marko": "^6.0.140"
+    "marko": "^6.0.161"
   },
   "peerDependencies": {
     "@ebay/skin": "^19.2.0",

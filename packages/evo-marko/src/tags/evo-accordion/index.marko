@@ -1,6 +1,6 @@
 import type { Input as DetailsInput } from "<evo-details>";
 export interface Input<Open extends number | number[] | undefined>
-    extends Marko.HTML.UL {
+    extends Omit<Marko.HTML.UL, "aria-roledescription"> {
     size?: "regular" | "large";
     /**
      * The `aria-roledescription` of the list

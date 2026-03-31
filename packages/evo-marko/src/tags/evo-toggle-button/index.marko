@@ -1,21 +1,20 @@
 export interface Input extends Marko.HTML.Button {
     pressed?: boolean;
     pressedChange?: (pressed: boolean) => void;
-    layoutType?: string;
-    icon?: Marko.AttrTag<Marko.Renderable>;
-    img?: Marko.AttrTag<{
+    layoutType?: "minimal" | "list" | "gallery";
+    icon?: Marko.AttrTag<Marko.HTML.Span>;
+    image?: Marko.AttrTag<{
         src: string;
         alt: string;
         fillPlacement?: string;
     }>;
-    subtitle?: string | Marko.AttrTag<Marko.Renderable>;
-    renderBody?: Marko.Body;
+    subtitle?: Marko.AttrTag<Marko.HTML.Span>;
 }
 
 <const/{
     class: inputClass,
     icon,
-    img,
+    image,
     layoutType,
     pressed: inputPressed,
     pressedChange,
@@ -43,20 +42,18 @@ export interface Input extends Marko.HTML.Button {
     }
 >
     <if=icon>
-        <span class="toggle-button__icon">
-            <${icon}/>
-        </span>
+        <span ...icon class=["toggle-button__icon", icon.class]/>
     </if>
-    <else if=img>
+    <else if=image>
         <span class="toggle-button__image-container">
-            <if=img.fillPlacement>
+            <if=image.fillPlacement>
                 <span
                     role="img"
-                    aria-label=img.alt
+                    aria-label=image.alt
                     class="toggle-button__image"
                     style={
-                        "background-image": `url(${img.src})`,
-                        "background-position": img.fillPlacement || "center",
+                        "background-image": `url(${image.src})`,
+                        "background-position": image.fillPlacement || "center",
                         "background-size": "cover",
                         "background-repeat": "no-repeat",
                     }
@@ -64,7 +61,7 @@ export interface Input extends Marko.HTML.Button {
             </if>
             <else>
                 <span class="toggle-button__image">
-                    <img src=img.src alt=img.alt>
+                    <img src=image.src alt=image.alt>
                 </span>
             </else>
         </span>
@@ -79,14 +76,7 @@ export interface Input extends Marko.HTML.Button {
             </else>
         </span>
         <if=subtitle>
-            <span class="toggle-button__subtitle">
-                <if=typeof subtitle === "string">
-                    ${subtitle}
-                </if>
-                <else>
-                    <${subtitle}/>
-                </else>
-            </span>
+            <span ...subtitle class=["toggle-button__subtitle", subtitle.class]/>
         </if>
     </span>
 </button>

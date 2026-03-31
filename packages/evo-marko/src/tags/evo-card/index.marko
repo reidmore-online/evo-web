@@ -1,8 +1,8 @@
 export interface Input extends Omit<Marko.HTML.Span, "title"> {
     layout?: "horizontal" | "vertical";
     aspectRatio?: "16:9" | "5:4";
-    overline?: Marko.AttrTag<Marko.HTML.P & { text?: string }>;
-    title?: Marko.AttrTag<Marko.HTML.H3 & { as?: string }>;
+    overline?: Marko.AttrTag<Marko.HTML.Div>;
+    title?: Marko.AttrTag<Marko.HTML.H3 & { as?: keyof Marko.NativeTags }>;
     description?: Marko.AttrTag<Marko.HTML.Div>;
     disabled?: boolean;
     action?: Marko.AttrTag<Marko.HTML.Div>;
