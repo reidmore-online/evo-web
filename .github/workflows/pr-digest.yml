@@ -1,0 +1,159 @@
+name: Daily PR Digest
+
+on:
+  schedule:
+    - cron: '0 13 * * 1-5' # 6am PDT / 7am PST, Mon-Fri
+  workflow_dispatch: # allow manual trigger for testing
+
+permissions:
+  pull-requests: read
+  checks: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        id: build-message
+        with:
+          result-encoding: string
+          script: |
+            const now = new Date();
+
+            // Fetch all open PRs (basic list)
+            const { data: prList } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            // Enrich each PR in parallel
+            const enriched = await Promise.all(prList.map(async (pr) => {
+              const [{ data: prDetail }, { data: reviews }, { data: checks }] = await Promise.all([
+                // Full PR detail includes additions/deletions (not in list response)
+                github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number
+                }),
+                github.rest.pulls.listReviews({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number
+                }),
+                github.rest.checks.listForRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: pr.head.sha
+                })
+              ]);
+
+              // Age
+              const ageDays = Math.floor((now - new Date(pr.created_at)) / (1000 * 60 * 60 * 24));
+
+              // Review status: track latest state per reviewer (ignore comments-only)
+              const latestByReviewer = {};
+              for (const review of reviews) {
+                if (review.state !== 'COMMENTED') {
+                  latestByReviewer[review.user.login] = review.state;
+                }
+              }
+              const states = Object.values(latestByReviewer);
+              let reviewStatus;
+              if (states.includes('CHANGES_REQUESTED')) reviewStatus = 'changes_requested';
+              else if (states.includes('APPROVED'))     reviewStatus = 'approved';
+              else if (reviews.length > 0)              reviewStatus = 'reviewed';
+              else                                      reviewStatus = 'awaiting';
+
+              // CI status
+              const runs = checks.check_runs;
+              let ciStatus = 'unknown';
+              if (runs.length > 0) {
+                const conclusions = runs.filter(c => c.status === 'completed').map(c => c.conclusion);
+                if (conclusions.some(c => c === 'failure' || c === 'timed_out')) {
+                  ciStatus = 'failing';
+                } else if (runs.every(c => c.status === 'completed' && c.conclusion === 'success')) {
+                  ciStatus = 'passing';
+                } else {
+                  ciStatus = 'pending';
+                }
+              }
+
+              return {
+                number:             pr.number,
+                title:              pr.title,
+                url:                pr.html_url,
+                author:             pr.user.login,
+                draft:              pr.draft,
+                ageDays,
+                additions:          prDetail.additions,
+                deletions:          prDetail.deletions,
+                requestedReviewers: pr.requested_reviewers.map(r => r.login),
+                reviewStatus,
+                reviewCount:        reviews.length,
+                ciStatus
+              };
+            }));
+
+            // Sort: CI failing first, then oldest first within each group
+            enriched.sort((a, b) => {
+              if (a.ciStatus === 'failing' && b.ciStatus !== 'failing') return -1;
+              if (a.ciStatus !== 'failing' && b.ciStatus === 'failing') return 1;
+              return b.ageDays - a.ageDays;
+            });
+
+            // Summary header
+            const total              = enriched.length;
+            const awaitingCount      = enriched.filter(p => p.reviewStatus === 'awaiting').length;
+            const ciFailingCount     = enriched.filter(p => p.ciStatus === 'failing').length;
+
+            let message = `📋 *Open PRs — ${total} total`;
+            const flags = [];
+            if (awaitingCount > 0)  flags.push(`${awaitingCount} awaiting first review`);
+            if (ciFailingCount > 0) flags.push(`${ciFailingCount} CI failing`);
+            if (flags.length > 0)   message += ` | ${flags.join(' | ')}`;
+            message += `*\n\n`;
+
+            // Per-PR rows
+            for (const pr of enriched) {
+              const ageEmoji = pr.ageDays > 14 ? '🔴' : pr.ageDays > 3 ? '🟡' : '🟢';
+              const ageLabel = pr.ageDays === 0 ? 'today' : pr.ageDays === 1 ? '1 day' : `${pr.ageDays} days`;
+              const draftTag = pr.draft ? ' `DRAFT`' : '';
+
+              message += `${ageEmoji} *${ageLabel}* — <${pr.url}|#${pr.number} ${pr.title}>${draftTag} — _${pr.author}_\n`;
+
+              const reviewEmoji = {
+                approved:           '✅',
+                changes_requested:  '🔁',
+                reviewed:           '💬',
+                awaiting:           '👀'
+              }[pr.reviewStatus];
+              const reviewLabel = {
+                approved:           'Approved',
+                changes_requested:  'Changes requested',
+                reviewed:           `${pr.reviewCount} review(s)`,
+                awaiting:           'No reviews yet'
+              }[pr.reviewStatus];
+
+              const reviewersLabel = pr.requestedReviewers.length > 0
+                ? pr.requestedReviewers.join(', ')
+                : 'none assigned';
+
+              const ciEmoji  = { passing: '✅', failing: '❌', pending: '⏳', unknown: '❓' }[pr.ciStatus];
+              const ciLabel  = { passing: 'CI passing', failing: 'CI failing', pending: 'CI pending', unknown: 'CI unknown' }[pr.ciStatus];
+
+              message += `   ${reviewEmoji} ${reviewLabel}  |  👤 ${reviewersLabel}  |  📏 +${pr.additions}/-${pr.deletions}  |  ${ciEmoji} ${ciLabel}\n\n`;
+            }
+
+            return message;
+
+      - name: Post to Slack
+        uses: slackapi/slack-github-action@v2
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ${{ toJSON(steps.build-message.outputs.result) }}
+            }
