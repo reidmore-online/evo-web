@@ -20,6 +20,7 @@
 
 <!-- For all PR types -->
 
+- [ ] I verify the linked issue has been triaged ("Needs Triage" label removed)
 - [ ] I verify all changes are within scope of the linked issue
 - [ ] I added/updated/removed testing (Storybook in Skin) coverage as appropriate
 
